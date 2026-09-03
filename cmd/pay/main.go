@@ -43,7 +43,15 @@ func main() {
 	auth := authn.New(
 		env("ID_JWKS_URL", "http://localhost:8081/.well-known/jwks.json"),
 		env("ID_ISSUER", "http://localhost:8081"))
-	srv := pay.NewServer(pool, auth, os.Getenv("PAY_INTERNAL_TOKEN"))
+
+	var sw *pay.SwitchClient
+	if switchURL := os.Getenv("SWITCH_URL"); switchURL != "" {
+		sw = &pay.SwitchClient{BaseURL: switchURL, APIKey: os.Getenv("SWITCH_API_KEY")}
+		slog.Info("card authorization via switch enabled", "url", switchURL)
+	} else {
+		slog.Warn("SWITCH_URL unset; escrow funds from wallet balance only, no card auth")
+	}
+	srv := pay.NewServer(pool, auth, os.Getenv("PAY_INTERNAL_TOKEN"), sw)
 
 	addr := ":" + env("PORT", "8083")
 	slog.Info("pay listening", "addr", addr)

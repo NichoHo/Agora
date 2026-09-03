@@ -1,10 +1,12 @@
 package pay
 
 import (
+	"context"
 	"crypto/subtle"
 	"encoding/json"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
@@ -16,13 +18,19 @@ type Server struct {
 	ledger        *Ledger
 	auth          *authn.Verifier
 	internalToken string
+	sw            *SwitchClient // nil disables card auth: escrow funds from wallet balance only, pre-Phase-3 behavior
 }
 
 // depositCap: demo money, so self-service top-ups are capped per call.
 const depositCap = 100_000
 
-func NewServer(pool *pgxpool.Pool, auth *authn.Verifier, internalToken string) http.Handler {
-	s := &Server{ledger: &Ledger{Pool: pool}, auth: auth, internalToken: internalToken}
+// authUnknownWait bounds how long a fund request waits for switch's own
+// StatusProbeJob (runs every 30s, ignores payments under 10s old) to resolve
+// an AUTH_UNKNOWN response. See docs/adr/0003.
+const authUnknownWait = 90 * time.Second
+
+func NewServer(pool *pgxpool.Pool, auth *authn.Verifier, internalToken string, sw *SwitchClient) http.Handler {
+	s := &Server{ledger: &Ledger{Pool: pool}, auth: auth, internalToken: internalToken, sw: sw}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
 		httpx.JSON(w, 200, map[string]bool{"ok": true})
@@ -60,6 +68,36 @@ func writeLedgerErr(w http.ResponseWriter, err error) {
 	}
 }
 
+// declinedStates: switch outcomes that mean "the card said no", mapped onto
+// FundEscrow's own ErrInsufficientFunds so market's existing PayClient (which
+// only knows 200/402/409) needs no change. See docs/adr/0003.
+var declinedStates = map[string]bool{
+	"AUTH_DECLINED": true, "RISK_DECLINED": true, "AUTHENTICATION_FAILED": true,
+}
+
+var errCardAuthIndeterminate = errors.New("card authorization still unresolved")
+
+// authorizeCard runs before FundEscrow's ledger transfer, gating it on a
+// successful card charge when switch is configured. FundEscrow itself is
+// untouched: this is the only new step in the fund path (Section 6 of
+// AGORA_SPEC.md: extend pay, don't rewrite its ledger).
+func (s *Server) authorizeCard(ctx context.Context, orderID string, amountMinor int64) error {
+	if s.sw == nil {
+		return nil
+	}
+	state, err := s.sw.AuthorizeAndResolve(ctx, orderID, amountMinor, "USD", authUnknownWait)
+	if err != nil {
+		return err
+	}
+	if declinedStates[state] {
+		return ErrInsufficientFunds
+	}
+	if state == "AUTH_UNKNOWN" {
+		return errCardAuthIndeterminate
+	}
+	return nil // AUTHORIZED or CAPTURED
+}
+
 func (s *Server) handleFund(w http.ResponseWriter, r *http.Request) {
 	var in struct {
 		OrderID     string `json:"order_id"`
@@ -68,6 +106,14 @@ func (s *Server) handleFund(w http.ResponseWriter, r *http.Request) {
 	}
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil || in.OrderID == "" || in.BuyerID == "" {
 		httpx.Error(w, 400, "bad request")
+		return
+	}
+	if err := s.authorizeCard(r.Context(), in.OrderID, in.AmountMinor); err != nil {
+		if errors.Is(err, ErrInsufficientFunds) {
+			writeLedgerErr(w, err)
+			return
+		}
+		httpx.Error(w, 502, "card authorization unresolved; retry")
 		return
 	}
 	t, err := s.ledger.FundEscrow(r.Context(), in.OrderID, in.BuyerID, in.AmountMinor)

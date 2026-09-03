@@ -47,7 +47,7 @@ func orderTestEnv(t *testing.T) *orderEnv {
 	ledger := &pay.Ledger{Pool: pool}
 
 	payAuth := authn.New(e.jwksURL, testIssuer)
-	paySrv := httptest.NewServer(pay.NewServer(pool, payAuth, "test-internal"))
+	paySrv := httptest.NewServer(pay.NewServer(pool, payAuth, "test-internal", nil))
 	t.Cleanup(paySrv.Close)
 	e.srv.pay = &PayClient{BaseURL: paySrv.URL, Token: "test-internal"}
 
