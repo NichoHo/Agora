@@ -3,5 +3,5 @@ package migrations
 
 import "embed"
 
-//go:embed id/*.sql market/*.sql pay/*.sql
+//go:embed id/*.sql market/*.sql pay/*.sql sale/*.sql
 var FS embed.FS

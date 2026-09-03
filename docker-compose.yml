@@ -15,6 +15,16 @@ services:
     volumes:
       - dbdata:/var/lib/postgresql/data
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+
   redpanda:
     image: redpandadata/redpanda:v24.2.7
     command:
@@ -82,10 +92,43 @@ services:
       ID_ISSUER: http://localhost:8081
       PAY_INTERNAL_TOKEN: dev-internal-token
       REDPANDA_BROKERS: redpanda:9092
+      # switch is a separate repo/stack (AGORA_SPEC.md section 9.1). Unset by
+      # default so `make up` works standalone; set both to opt into real card
+      # auth once `switch`'s own docker compose stack is also running:
+      #   SWITCH_URL: http://host.docker.internal:8080
+      #   SWITCH_API_KEY: agora-service-integration-key
+      SWITCH_URL: ${SWITCH_URL:-}
+      SWITCH_API_KEY: ${SWITCH_API_KEY:-}
     depends_on:
       db:
         condition: service_healthy
       id:
+        condition: service_started
+      redpanda:
+        condition: service_healthy
+
+  sale:
+    build:
+      context: .
+      args: { SERVICE: sale }
+    ports:
+      - "8085:8085"
+    environment:
+      DATABASE_URL: postgres://vault:vault@db:5432/vault
+      ID_JWKS_URL: http://id:8081/.well-known/jwks.json
+      ID_ISSUER: http://localhost:8081
+      MARKET_URL: http://market:8082
+      REDIS_ADDR: redis:6379
+      SALE_TOKEN_SECRET: dev-insecure-sale-token-secret
+      REDPANDA_BROKERS: redpanda:9092
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      id:
+        condition: service_started
+      market:
         condition: service_started
       redpanda:
         condition: service_healthy
@@ -101,6 +144,24 @@ services:
       ADMIN_EMAILS: alice@vault.test
       REDPANDA_BROKERS: redpanda:9092
       # ANTHROPIC_API_KEY: set in the environment to enable real VLM suggestions
+    depends_on:
+      db:
+        condition: service_healthy
+      id:
+        condition: service_started
+      redpanda:
+        condition: service_healthy
+
+  risk:
+    build: ./services/risk
+    ports:
+      - "8086:8086"
+    environment:
+      DATABASE_URL: postgres://vault:vault@db:5432/vault
+      ID_JWKS_URL: http://id:8081/.well-known/jwks.json
+      ID_ISSUER: http://localhost:8081
+      ADMIN_EMAILS: alice@vault.test
+      REDPANDA_BROKERS: redpanda:9092
     depends_on:
       db:
         condition: service_healthy
