@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"vault/internal/httpx"
+	"agora/internal/httpx"
 )
 
 func (s *Server) mfaRoutes(mux *http.ServeMux) {

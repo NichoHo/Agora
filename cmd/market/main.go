@@ -8,12 +8,12 @@ import (
 	"os"
 	"time"
 
-	"vault/internal/authn"
-	"vault/internal/events"
-	"vault/internal/httpx"
-	"vault/internal/market"
-	"vault/internal/pg"
-	"vault/migrations"
+	"agora/internal/authn"
+	"agora/internal/events"
+	"agora/internal/httpx"
+	"agora/internal/market"
+	"agora/internal/pg"
+	"agora/migrations"
 )
 
 func env(key, def string) string {

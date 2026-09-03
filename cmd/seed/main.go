@@ -8,10 +8,10 @@ import (
 	"log/slog"
 	"os"
 
-	"vault/internal/id"
-	"vault/internal/pay"
-	"vault/internal/pg"
-	"vault/migrations"
+	"agora/internal/id"
+	"agora/internal/pay"
+	"agora/internal/pg"
+	"agora/migrations"
 )
 
 func env(key, def string) string {

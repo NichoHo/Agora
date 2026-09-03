@@ -13,8 +13,8 @@ import (
 	"sync"
 	"time"
 
-	"vault/internal/httpx"
-	"vault/internal/id"
+	"agora/internal/httpx"
+	"agora/internal/id"
 )
 
 type ctxKey string

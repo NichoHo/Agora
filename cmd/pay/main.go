@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"os"
 
-	"vault/internal/authn"
-	"vault/internal/events"
-	"vault/internal/httpx"
-	"vault/internal/pay"
-	"vault/internal/pg"
-	"vault/migrations"
+	"agora/internal/authn"
+	"agora/internal/events"
+	"agora/internal/httpx"
+	"agora/internal/pay"
+	"agora/internal/pg"
+	"agora/migrations"
 )
 
 func env(key, def string) string {

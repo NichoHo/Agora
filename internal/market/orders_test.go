@@ -12,10 +12,10 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"vault/internal/authn"
-	"vault/internal/pay"
-	"vault/internal/pg"
-	"vault/migrations"
+	"agora/internal/authn"
+	"agora/internal/pay"
+	"agora/internal/pg"
+	"agora/migrations"
 )
 
 func migratePay(ctx context.Context, pool *pgxpool.Pool) error {

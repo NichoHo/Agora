@@ -9,8 +9,8 @@ import (
 	"sync"
 	"testing"
 
-	"vault/internal/pg"
-	"vault/migrations"
+	"agora/internal/pg"
+	"agora/migrations"
 )
 
 const (

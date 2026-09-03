@@ -17,8 +17,8 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"vault/internal/pg"
-	"vault/migrations"
+	"agora/internal/pg"
+	"agora/migrations"
 )
 
 const (

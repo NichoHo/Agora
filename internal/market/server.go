@@ -13,8 +13,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"vault/internal/authn"
-	"vault/internal/httpx"
+	"agora/internal/authn"
+	"agora/internal/httpx"
 )
 
 type Server struct {

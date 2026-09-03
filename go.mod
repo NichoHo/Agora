@@ -1,4 +1,4 @@
-module vault
+module agora
 
 go 1.26.5
 

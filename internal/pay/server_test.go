@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"vault/internal/authn"
-	"vault/internal/id"
+	"agora/internal/authn"
+	"agora/internal/id"
 )
 
 const internalToken = "test-internal-token"

@@ -16,7 +16,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"vault/internal/httpx"
+	"agora/internal/httpx"
 )
 
 const (

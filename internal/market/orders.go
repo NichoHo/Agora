@@ -10,8 +10,8 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"vault/internal/authn"
-	"vault/internal/httpx"
+	"agora/internal/authn"
+	"agora/internal/httpx"
 )
 
 const reservationTTL = 15 * time.Minute

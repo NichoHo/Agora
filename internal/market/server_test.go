@@ -13,10 +13,10 @@ import (
 	"testing"
 	"time"
 
-	"vault/internal/authn"
-	"vault/internal/id"
-	"vault/internal/pg"
-	"vault/migrations"
+	"agora/internal/authn"
+	"agora/internal/id"
+	"agora/internal/pg"
+	"agora/migrations"
 )
 
 const testIssuer = "http://issuer.test"

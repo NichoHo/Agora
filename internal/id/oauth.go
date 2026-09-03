@@ -13,7 +13,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"vault/internal/httpx"
+	"agora/internal/httpx"
 )
 
 // webPath is the dev proxy prefix the storefront mounts the IdP under.
