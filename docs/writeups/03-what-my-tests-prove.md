@@ -6,7 +6,7 @@ matter aren't "wrong output for input X." They're "under concurrency, value was
 created or destroyed," and you will not find those by asserting on examples,
 because the example that breaks is the interleaving you didn't think to write.
 
-So [Vault](https://github.com/NichoHo/vault)'s payment service is tested by
+So [Vault](https://github.com/NichoHo/Agora)'s payment service is tested by
 **invariants**: properties that must hold across *every* state, which the tests
 then try to violate. This is the testing style I care most about, and money is
 where it earns its keep.

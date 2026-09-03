@@ -108,5 +108,5 @@ TEST_DATABASE_URL=postgres://user:pass@localhost:5432/db go test -race ./...
 
 MIT. See [LICENSE](LICENSE).
 
-Extracted from [Vault](https://github.com/NichoHo/vault), a marketplace with a
+Extracted from [Agora](https://github.com/NichoHo/Agora), a marketplace with a
 self-built OIDC identity provider and escrow payments.

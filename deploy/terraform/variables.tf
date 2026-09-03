@@ -16,7 +16,7 @@ variable "key_name" {
 variable "repo_url" {
   description = "Git repository URL to clone onto the instance"
   type        = string
-  default     = "https://github.com/NichoHo/vault.git"
+  default     = "https://github.com/NichoHo/Agora.git"
 }
 
 variable "instance_type" {

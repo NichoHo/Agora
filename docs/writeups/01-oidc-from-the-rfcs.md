@@ -1,7 +1,7 @@
 # Building an OIDC provider from the RFCs (and what I got wrong first)
 
 Most tutorials tell you to put an identity provider in front of your app and
-never look inside. I did the opposite: for [Vault](https://github.com/NichoHo/vault),
+never look inside. I did the opposite: for [Vault](https://github.com/NichoHo/Agora),
 a small marketplace, I built the OAuth 2.0 / OIDC provider myself, reading the
 RFCs instead of reaching for a library: Authorization Code + PKCE, RS256 with
 JWKS, TOTP MFA, and rotating refresh tokens with reuse detection. Not because you

@@ -15,7 +15,7 @@ doesn't exist. This is the **dual-write problem**, and you cannot fix it by reor
 the two lines or wrapping them in a retry. There is no ordering of two
 independent commits that is crash-safe.
 
-Building [Vault](https://github.com/NichoHo/vault), a marketplace where the
+Building [Vault](https://github.com/NichoHo/Agora), a marketplace where the
 trust-scoring service reacts to every listing and order, I hit this and solved it
 with the transactional outbox, then extracted the reusable core into a small Go
 library, [outboxkit](https://github.com/NichoHo/outboxkit). This is how it works
