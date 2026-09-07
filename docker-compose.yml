@@ -52,8 +52,11 @@ services:
       DATABASE_URL: postgres://vault:vault@db:5432/vault
       ID_ISSUER: http://localhost:8081
       WEB_URL: http://${PUBLIC_HOST:-localhost}:3001
+      REDPANDA_BROKERS: redpanda:9092
     depends_on:
       db:
+        condition: service_healthy
+      redpanda:
         condition: service_healthy
 
   market:
@@ -179,6 +182,7 @@ services:
       MARKET_URL: http://market:8082
       PAY_URL: http://pay:8083
       ASSIST_URL: http://assist:8084
+      RISK_URL: http://risk:8086
       ADMIN_EMAILS: alice@vault.test
       WEB_ORIGIN: http://${PUBLIC_HOST:-localhost}:3001
     depends_on:
@@ -186,6 +190,7 @@ services:
       - market
       - pay
       - assist
+      - risk
 
   seed:
     build:

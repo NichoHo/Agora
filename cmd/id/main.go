@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	"agora/internal/events"
 	"agora/internal/httpx"
 	"agora/internal/id"
 	"agora/internal/pg"
@@ -35,6 +36,10 @@ func main() {
 	signer, err := id.LoadOrCreateSigner(ctx, pool)
 	if err != nil {
 		slog.Error("signer", "err", err)
+		os.Exit(1)
+	}
+	if err := events.StartRelay(ctx, pool, "id", os.Getenv("REDPANDA_BROKERS")); err != nil {
+		slog.Error("relay", "err", err)
 		os.Exit(1)
 	}
 

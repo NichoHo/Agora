@@ -190,6 +190,7 @@ func (s *Server) handleToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.audit(r.Context(), userID, "token.issue", map[string]any{"client": clientID})
+	s.emit(r.Context(), "auth.login", map[string]any{"user_id": userID, "client": clientID, "ip": r.RemoteAddr})
 	httpx.JSON(w, 200, map[string]any{
 		"access_token": access, "id_token": idToken, "refresh_token": refresh,
 		"token_type": "Bearer", "expires_in": int(tokenTTL.Seconds()),
@@ -253,6 +254,8 @@ func (s *Server) handleRefreshGrant(w http.ResponseWriter, r *http.Request) {
 			familyID)
 		s.audit(r.Context(), userID, "refresh.reuse_detected",
 			map[string]any{"family": familyID, "client": clientID})
+		s.emit(r.Context(), "auth.refresh_reuse_detected",
+			map[string]any{"user_id": userID, "family": familyID, "client": clientID})
 		invalidGrant(w)
 		return
 	}

@@ -60,6 +60,18 @@ func (s *Server) audit(ctx context.Context, actor, action string, meta map[strin
 	}
 }
 
+// emit writes to id's outbox (relayed to the id.events stream the same way
+// every other service's outbox is). Separate from audit: audit is id's own
+// permanent record and fires on far more actions than risk needs to hear
+// about; emit is only for the two signals AGORA_SPEC.md section 8.3 names.
+func (s *Server) emit(ctx context.Context, topic string, payload map[string]any) {
+	b, _ := json.Marshal(payload)
+	if _, err := s.pool.Exec(ctx,
+		`INSERT INTO id.outbox (topic, payload) VALUES ($1, $2)`, topic, b); err != nil {
+		slog.Error("outbox write failed", "topic", topic, "err", err)
+	}
+}
+
 func randToken(n int) string {
 	b := make([]byte, n)
 	rand.Read(b)
