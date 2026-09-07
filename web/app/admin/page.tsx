@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Reveal from "@/components/motion/Reveal";
+import AdminNav from "@/components/admin/AdminNav";
 import { getToken, getUser } from "@/lib/auth";
 import { ADMIN_EMAILS, ASSIST_URL } from "@/lib/env";
 import { resolveRiskAction } from "./actions";
@@ -51,6 +52,7 @@ export default async function AdminPage() {
 
   return (
     <Reveal mode="mount" className="mx-auto max-w-3xl">
+      <AdminNav active="trust" />
       <h1 className="mb-4 text-xl font-bold tracking-tight text-ink">Admin</h1>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -100,14 +102,14 @@ export default async function AdminPage() {
                   <form action={resolveRiskAction}>
                     <input type="hidden" name="id" value={r.id} />
                     <input type="hidden" name="action" value="approve" />
-                    <button className="rounded-control bg-success px-2 py-1 text-xs text-on-solid">
+                    <button className="rounded-control bg-success px-2 py-1 text-xs text-on-solid hover:bg-success/80">
                       Approve
                     </button>
                   </form>
                   <form action={resolveRiskAction}>
                     <input type="hidden" name="id" value={r.id} />
                     <input type="hidden" name="action" value="reject" />
-                    <button className="rounded-control bg-danger px-2 py-1 text-xs text-on-solid">
+                    <button className="rounded-control bg-danger px-2 py-1 text-xs text-on-solid hover:bg-danger/80">
                       Reject
                     </button>
                   </form>
