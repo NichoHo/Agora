@@ -32,3 +32,18 @@ def test_transfer_score_scales_with_amount():
     assert small_score == 0.0
     assert large_score == 0.7  # both large and huge thresholds crossed
     assert len(large_reasons) == 2
+
+
+def test_login_score_flags_high_velocity():
+    calm_score, calm_reasons = model.login_score(recent_login_count=1)
+    hot_score, hot_reasons = model.login_score(recent_login_count=20)
+    assert calm_score == 0.0 and calm_reasons == []
+    assert model.decide(hot_score) == "block"
+    assert hot_reasons
+
+
+def test_refresh_reuse_is_always_top_of_scale():
+    score, reasons = model.refresh_reuse_score()
+    assert score == 1.0
+    assert model.decide(score) == "block"
+    assert reasons

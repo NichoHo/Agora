@@ -99,6 +99,34 @@ def order_score(order_count_by_buyer_1h: int) -> tuple[float, list[str]]:
     return score, reasons
 
 
+def login_score(recent_login_count: int) -> tuple[float, list[str]]:
+    """Login-velocity rule: many logins for one user in a short window, a
+    proxy for credential stuffing / account-takeover attempts.
+
+    ponytail: velocity only. Geo velocity and unrecognised-device signals
+    from AGORA_SPEC.md section 8.3 need IP geolocation and a device
+    fingerprint id doesn't collect anywhere today; adding that is a change
+    to id's login flow itself, out of scope for wiring its events, which is
+    what this pass does. Add if account-takeover shows up as a real problem.
+    """
+    reasons = []
+    score = 0.0
+    if recent_login_count > 5:
+        score = 0.5
+        reasons.append(f"{recent_login_count} logins for this user in 10 minutes")
+    if recent_login_count > 15:
+        score = 0.9
+        reasons.append(f"{recent_login_count} logins for this user in 10 minutes (severe)")
+    return score, reasons
+
+
+def refresh_reuse_score() -> tuple[float, list[str]]:
+    """A detected refresh-token reuse means id already concluded theft is
+    likely enough to revoke the entire token family. No blend, no threshold:
+    this is always the top of the scale."""
+    return 1.0, ["id detected refresh token reuse and revoked the token family"]
+
+
 def transfer_score(amount_minor: int, kind: str) -> tuple[float, list[str]]:
     """Amount-anomaly rule, adapted directly from tally's original thresholds."""
     reasons = []
