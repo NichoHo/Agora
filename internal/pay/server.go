@@ -116,6 +116,15 @@ func (s *Server) handleFund(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, 502, "card authorization unresolved; retry")
 		return
 	}
+	if s.sw != nil {
+		// A successful card charge is the funding source, not a pre-existing
+		// wallet balance: credit it as a deposit before FundEscrow's own
+		// (untouched) buyer-must-have-balance transfer runs. See ADR 0003.
+		if _, err := s.ledger.Deposit(r.Context(), "card:"+in.OrderID, in.BuyerID, in.AmountMinor); err != nil {
+			httpx.Error(w, 502, "card deposit failed")
+			return
+		}
+	}
 	t, err := s.ledger.FundEscrow(r.Context(), in.OrderID, in.BuyerID, in.AmountMinor)
 	if err != nil {
 		writeLedgerErr(w, err)

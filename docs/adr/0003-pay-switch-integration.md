@@ -44,6 +44,15 @@ produces. Not a perfect label (a real fintech would want to distinguish
 repo's own honest-simulation framing: there is no real card, only a
 documented test BIN.
 
+A successful charge needs the same care on the other side. `FundEscrow`
+still moves money out of the buyer's own wallet account, and a buyer who
+never deposited has a zero balance there regardless of switch's answer, so
+`handleFund` deposits the charged amount into the buyer's wallet (`Ledger.
+Deposit`, already used by the plain top-up flow) right after a successful
+`authorizeCard`, before `FundEscrow` runs. `FundEscrow` itself stays
+untouched, as planned; the card charge now arrives as an ordinary deposit
+so its existing balance check has something to see.
+
 ## What this costs
 
 A `pay` request can now legitimately take up to 90 seconds, holding one

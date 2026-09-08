@@ -23,7 +23,7 @@ type httpEnv struct {
 	ledger *Ledger
 }
 
-func testHTTP(t *testing.T) *httpEnv {
+func testHTTP(t *testing.T, sw *SwitchClient) *httpEnv {
 	t.Helper()
 	l := testLedger(t)
 
@@ -39,7 +39,7 @@ func testHTTP(t *testing.T) *httpEnv {
 	t.Cleanup(jwksSrv.Close)
 
 	auth := authn.New(jwksSrv.URL, "http://issuer.test")
-	ts := httptest.NewServer(NewServer(l.Pool, auth, internalToken, nil))
+	ts := httptest.NewServer(NewServer(l.Pool, auth, internalToken, sw))
 	t.Cleanup(ts.Close)
 	return &httpEnv{ts: ts, signer: signer, ledger: l}
 }
@@ -74,7 +74,7 @@ func (e *httpEnv) post(t *testing.T, path, bearer, internal string, body any) *h
 }
 
 func TestInternalEndpointsRequireToken(t *testing.T) {
-	e := testHTTP(t)
+	e := testHTTP(t, nil)
 	body := map[string]any{"order_id": "o1", "buyer_id": buyer, "amount_minor": 100}
 
 	if resp := e.post(t, "/internal/escrow/fund", "", "", body); resp.StatusCode != 403 {
@@ -90,7 +90,7 @@ func TestInternalEndpointsRequireToken(t *testing.T) {
 }
 
 func TestDepositAndWalletOverHTTP(t *testing.T) {
-	e := testHTTP(t)
+	e := testHTTP(t, nil)
 	tok := e.token(t, buyer)
 
 	if resp := e.post(t, "/deposits", tok, "", map[string]any{
@@ -122,7 +122,7 @@ func TestDepositAndWalletOverHTTP(t *testing.T) {
 }
 
 func TestEscrowFlowOverHTTP(t *testing.T) {
-	e := testHTTP(t)
+	e := testHTTP(t, nil)
 	ctx := context.Background()
 	if _, err := e.ledger.Deposit(ctx, "d", buyer, 10_000); err != nil {
 		t.Fatal(err)
@@ -144,6 +144,31 @@ func TestEscrowFlowOverHTTP(t *testing.T) {
 	if resp := e.post(t, "/internal/escrow/refund", "", internalToken, map[string]any{
 		"order_id": "o1", "buyer_id": buyer}); resp.StatusCode != 409 {
 		t.Fatalf("refund after release: want 409, got %d", resp.StatusCode)
+	}
+	checkBooks(t, e.ledger)
+}
+
+// TestEscrowFundsFromCardWithZeroWalletBalance covers the gap ADR 0003's
+// addendum fixes: a buyer who never deposited anything must still be able
+// to fund escrow once switch reports the card charge captured.
+func TestEscrowFundsFromCardWithZeroWalletBalance(t *testing.T) {
+	sw := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(201)
+		switch r.URL.Path {
+		case "/v1/tokens":
+			json.NewEncoder(w).Encode(map[string]string{"token": "tok_test"})
+		case "/v1/payments":
+			json.NewEncoder(w).Encode(map[string]string{"id": "pay_test", "state": "CAPTURED"})
+		default:
+			t.Fatalf("unexpected switch call: %s", r.URL.Path)
+		}
+	}))
+	t.Cleanup(sw.Close)
+
+	e := testHTTP(t, &SwitchClient{BaseURL: sw.URL, APIKey: "k"})
+	if resp := e.post(t, "/internal/escrow/fund", "", internalToken, map[string]any{
+		"order_id": "o1", "buyer_id": buyer, "amount_minor": 1_500}); resp.StatusCode != 200 {
+		t.Fatalf("fund with zero wallet balance but captured card: want 200, got %d", resp.StatusCode)
 	}
 	checkBooks(t, e.ledger)
 }

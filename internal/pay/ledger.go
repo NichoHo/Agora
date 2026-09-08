@@ -16,6 +16,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
+
+	"agora/internal/tracing"
 )
 
 var (
@@ -117,8 +119,9 @@ func transferInTx(ctx context.Context, tx pgx.Tx, a transferArgs) (Transfer, err
 	}
 	if _, err := tx.Exec(ctx,
 		`INSERT INTO pay.outbox (topic, payload) VALUES ('transfer.created',
-		   jsonb_build_object('transfer_id', $1::text, 'kind', $2::text, 'reference', $3::text, 'amount_minor', $4::bigint))`,
-		t.ID, t.Kind, t.Reference, t.AmountMinor); err != nil {
+		   jsonb_build_object('transfer_id', $1::text, 'kind', $2::text, 'reference', $3::text,
+		                      'amount_minor', $4::bigint, '_trace', $5::text))`,
+		t.ID, t.Kind, t.Reference, t.AmountMinor, tracing.Traceparent(ctx)); err != nil {
 		return Transfer{}, err
 	}
 	return t, nil
@@ -172,6 +175,13 @@ func (l *Ledger) Deposit(ctx context.Context, key, userID string, amount int64) 
 	return l.transfer(ctx, transferArgs{key: key, kind: "deposit", from: ext, to: user, amount: amount})
 }
 
+// ponytail: every order funds into this one shared escrow account, so
+// transferInTx's FOR UPDATE row lock on it serializes all concurrent
+// FundEscrow calls system-wide. Correct and simple; measured ceiling is
+// ~150-200 fundings/sec on this dev machine before queueing dominates
+// latency (load/results/05-ledger-write.log). Shard escrow the way
+// internal/sale already shards Redis drop units if real throughput needs
+// to clear that.
 func (l *Ledger) FundEscrow(ctx context.Context, orderID, buyerID string, amount int64) (Transfer, error) {
 	escrow, err := l.AccountFor(ctx, "escrow", nil)
 	if err != nil {

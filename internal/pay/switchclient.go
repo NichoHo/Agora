@@ -10,14 +10,20 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	"agora/internal/tracing"
 )
+
+var switchHTTPClient = tracing.Client()
 
 // demoCardToken: agora collects no real card details anywhere in the
 // storefront (Section 4: simulation, synthetic data, no real payment
 // provider). Every escrow funding authorizes against the same switch test
-// card, tokenized once at startup. "4111110000000000" uses switch's
-// documented test BIN 411111 (see Switch/README.md).
-const demoCardPAN = "4111110000000000"
+// card, tokenized once at startup. "4242424242424242" is Luhn-valid and
+// matches switch's own BinDirectory test-BIN allowlist (prefix 42424242,
+// see Switch/gateway/.../vault/BinDirectory.java); the 411111 BIN named in
+// Switch/README.md isn't actually in that allowlist.
+const demoCardPAN = "4242424242424242"
 
 type SwitchClient struct {
 	BaseURL string
@@ -36,7 +42,7 @@ func (c *SwitchClient) do(ctx context.Context, method, path string, body any) (*
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
-	return http.DefaultClient.Do(req)
+	return switchHTTPClient.Do(req)
 }
 
 // EnsureToken tokenizes the demo test card once and caches the token. Safe
@@ -91,7 +97,7 @@ func (c *SwitchClient) authorize(ctx context.Context, orderID string, amountMino
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("Idempotency-Key", "escrow-fund:"+orderID)
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := switchHTTPClient.Do(req)
 	if err != nil {
 		return authResult{}, err
 	}
