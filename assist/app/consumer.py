@@ -13,10 +13,12 @@ import time
 
 from kafka import KafkaConsumer
 from kafka.errors import KafkaError
+from opentelemetry import trace
 
-from . import trust
+from . import trust, tracing
 
 log = logging.getLogger("assist.consumer")
+tracer = trace.get_tracer("assist.consumer")
 
 
 def _run(pool, brokers: str) -> None:
@@ -42,8 +44,9 @@ def _run(pool, brokers: str) -> None:
                 if key == "domain-topic":
                     topic = val.decode()
             event_id = int(record.key.decode()) if record.key else record.offset
-            with pool.connection() as conn:
-                trust.consume(conn, event_id, topic, record.value)
+            with tracer.start_as_current_span(f"assist.trust {topic}", context=tracing.context_from_payload(record.value)):
+                with pool.connection() as conn:
+                    trust.consume(conn, event_id, topic, record.value)
         except Exception:
             log.exception("failed to process event at offset %s", record.offset)
 

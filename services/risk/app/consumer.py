@@ -21,8 +21,11 @@ import time
 
 from kafka import KafkaConsumer
 from kafka.errors import KafkaError
+from opentelemetry import trace
 
-from . import model
+from . import model, tracing
+
+tracer = trace.get_tracer("risk.consumer")
 
 log = logging.getLogger("risk.consumer")
 
@@ -125,7 +128,11 @@ def process(conn, scorer: model.ReservationScorer, source: str, event_id: int, d
     }
     handler = handlers.get(domain_topic)
     if handler:
-        handler()
+        # Continues the trace the producing service started (see
+        # tracing.context_from_payload); a span still opens with no parent
+        # when "_trace" is missing, so untraced producers don't break this.
+        with tracer.start_as_current_span(f"risk.score {domain_topic}", context=tracing.context_from_payload(payload)):
+            handler()
     _mark_consumed(conn, source, event_id)
 
 

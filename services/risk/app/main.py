@@ -3,12 +3,14 @@ import os
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, HTTPException
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from pydantic import BaseModel
 
-from . import consumer, db
+from . import consumer, db, tracing
 from .auth import admin_user
 
 logging.basicConfig(level=logging.INFO)
+tracing.init("risk")
 
 
 @asynccontextmanager
@@ -21,6 +23,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="agora-risk", lifespan=lifespan)
+FastAPIInstrumentor.instrument_app(app)
 
 
 @app.get("/healthz")

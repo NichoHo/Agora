@@ -3,12 +3,14 @@ import os
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, HTTPException
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from pydantic import BaseModel, Field
 
-from . import consumer, db, suggest
+from . import consumer, db, suggest, tracing
 from .auth import admin_user, current_user
 
 logging.basicConfig(level=logging.INFO)
+tracing.init("assist")
 
 ACCEPTABLE_FIELDS = {"title", "description", "category", "price"}
 
@@ -23,6 +25,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="vault-assist", lifespan=lifespan)
+FastAPIInstrumentor.instrument_app(app)
 
 
 @app.get("/healthz")

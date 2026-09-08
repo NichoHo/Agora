@@ -8,11 +8,14 @@ import (
 	"os"
 	"time"
 
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+
 	"agora/internal/authn"
 	"agora/internal/events"
 	"agora/internal/httpx"
 	"agora/internal/market"
 	"agora/internal/pg"
+	"agora/internal/tracing"
 	"agora/migrations"
 )
 
@@ -25,6 +28,13 @@ func env(key, def string) string {
 
 func main() {
 	ctx := context.Background()
+	shutdown, err := tracing.Init(ctx, "market", os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT"))
+	if err != nil {
+		slog.Error("tracing", "err", err)
+		os.Exit(1)
+	}
+	defer shutdown(ctx)
+
 	pool, err := pg.Connect(ctx, env("DATABASE_URL", "postgres://vault:vault@localhost:5432/vault"))
 	if err != nil {
 		slog.Error("connect", "err", err)
@@ -59,7 +69,7 @@ func main() {
 
 	addr := ":" + env("PORT", "8082")
 	slog.Info("market listening", "addr", addr)
-	if err := http.ListenAndServe(addr, httpx.Wrap(srv)); err != nil {
+	if err := http.ListenAndServe(addr, otelhttp.NewHandler(httpx.Wrap(srv), "market")); err != nil {
 		slog.Error("serve", "err", err)
 		os.Exit(1)
 	}

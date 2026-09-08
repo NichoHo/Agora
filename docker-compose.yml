@@ -42,6 +42,14 @@ services:
       timeout: 3s
       retries: 20
 
+  jaeger:
+    image: jaegertracing/all-in-one:1.62.0
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - "16686:16686" # UI
+      - "4318:4318"   # OTLP/HTTP
+
   id:
     build:
       context: .
@@ -53,6 +61,7 @@ services:
       ID_ISSUER: http://localhost:8081
       WEB_URL: http://${PUBLIC_HOST:-localhost}:3001
       REDPANDA_BROKERS: redpanda:9092
+      OTEL_EXPORTER_OTLP_ENDPOINT: jaeger:4318
     depends_on:
       db:
         condition: service_healthy
@@ -73,6 +82,7 @@ services:
       PAY_INTERNAL_TOKEN: dev-internal-token
       AUTO_RELEASE_AFTER: 72h
       REDPANDA_BROKERS: redpanda:9092
+      OTEL_EXPORTER_OTLP_ENDPOINT: jaeger:4318
     depends_on:
       db:
         condition: service_healthy
@@ -102,6 +112,7 @@ services:
       #   SWITCH_API_KEY: agora-service-integration-key
       SWITCH_URL: ${SWITCH_URL:-}
       SWITCH_API_KEY: ${SWITCH_API_KEY:-}
+      OTEL_EXPORTER_OTLP_ENDPOINT: jaeger:4318
     depends_on:
       db:
         condition: service_healthy
@@ -124,6 +135,7 @@ services:
       REDIS_ADDR: redis:6379
       SALE_TOKEN_SECRET: dev-insecure-sale-token-secret
       REDPANDA_BROKERS: redpanda:9092
+      OTEL_EXPORTER_OTLP_ENDPOINT: jaeger:4318
     depends_on:
       db:
         condition: service_healthy
@@ -146,6 +158,7 @@ services:
       ID_ISSUER: http://localhost:8081
       ADMIN_EMAILS: alice@vault.test
       REDPANDA_BROKERS: redpanda:9092
+      OTEL_EXPORTER_OTLP_ENDPOINT: jaeger:4318
       # ANTHROPIC_API_KEY: set in the environment to enable real VLM suggestions
     depends_on:
       db:
@@ -165,6 +178,7 @@ services:
       ID_ISSUER: http://localhost:8081
       ADMIN_EMAILS: alice@vault.test
       REDPANDA_BROKERS: redpanda:9092
+      OTEL_EXPORTER_OTLP_ENDPOINT: jaeger:4318
     depends_on:
       db:
         condition: service_healthy

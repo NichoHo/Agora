@@ -17,6 +17,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"agora/internal/httpx"
+	"agora/internal/tracing"
 )
 
 const (
@@ -65,6 +66,9 @@ func (s *Server) audit(ctx context.Context, actor, action string, meta map[strin
 // permanent record and fires on far more actions than risk needs to hear
 // about; emit is only for the two signals AGORA_SPEC.md section 8.3 names.
 func (s *Server) emit(ctx context.Context, topic string, payload map[string]any) {
+	if tp := tracing.Traceparent(ctx); tp != "" {
+		payload["_trace"] = tp
+	}
 	b, _ := json.Marshal(payload)
 	if _, err := s.pool.Exec(ctx,
 		`INSERT INTO id.outbox (topic, payload) VALUES ($1, $2)`, topic, b); err != nil {
