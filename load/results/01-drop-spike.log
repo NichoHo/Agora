@@ -1,0 +1,171 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: 01-drop-spike.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 10000 max VUs, 20s max duration (incl. graceful stop):
+              * spike: Up to 10000 looping VUs for 10s over 2 stages (gracefulRampDown: 10s, gracefulStop: 30s)
+
+
+Init    [  94% ] 09373/10000 VUs initialized
+spike   [   0% ]
+
+Run     [ 100% ] setup()
+spike   [   0% ]
+
+Run     [ 100% ] setup()
+spike   [   0% ]
+
+Run     [ 100% ] setup()
+spike   [   0% ]
+
+Run     [ 100% ] setup()
+spike   [   0% ]
+
+Run     [ 100% ] setup()
+spike   [   0% ]
+
+Run     [ 100% ] setup()
+spike   [   0% ]
+
+Run     [ 100% ] setup()
+spike   [   0% ]
+
+Run     [ 100% ] setup()
+spike   [   0% ]
+
+Run     [ 100% ] setup()
+spike   [   0% ]
+
+Run     [ 100% ] setup()
+spike   [   0% ]
+
+Run     [ 100% ] setup()
+spike   [   0% ]
+
+Run     [ 100% ] setup()
+spike   [   0% ]
+
+Run     [ 100% ] setup()
+spike   [   0% ]
+
+Run     [ 100% ] setup()
+spike   [   0% ]
+
+Run     [ 100% ] setup()
+spike   [   0% ]
+
+Run     [ 100% ] setup()
+spike   [   0% ]
+
+Run     [ 100% ] setup()
+spike   [   0% ]
+
+Run     [ 100% ] setup()
+spike   [   0% ]
+time="2026-09-08T14:16:54Z" level=info msg="drop d56ee811-5bf5-4432-a302-7f576665a92c opened with 1000 units, admit the pool before running:" source=console
+time="2026-09-08T14:16:54Z" level=info msg="  see load/README.md's \"before each drop scenario\" step" source=console
+
+running (18.9s), 00641/10000 VUs, 1498 complete and 0 interrupted iterations
+spike   [   3% ] 00641/10000 VUs  00.3s/10.0s
+
+running (19.9s), 02586/10000 VUs, 5844 complete and 0 interrupted iterations
+spike   [  13% ] 02586/10000 VUs  01.3s/10.0s
+
+running (20.9s), 04430/10000 VUs, 8439 complete and 0 interrupted iterations
+spike   [  23% ] 04430/10000 VUs  02.3s/10.0s
+200
+ning (21.9s), 04792/10000 VUs, 9792 complete and 0 interrupted iterations
+spike   [  33% ] 04792/10000 VUs  03.3s/10.0s
+
+running (22.9s), 05936/10000 VUs, 14271 complete and 0 interrupted iterations
+spike   [  44% ] 05936/10000 VUs  04.4s/10.0s
+
+running (23.9s), 08348/10000 VUs, 14831 complete and 0 interrupted iterations
+spike   [  53% ] 08348/10000 VUs  05.3s/10.0s
+
+running (24.9s), 09380/10000 VUs, 15535 complete and 0 interrupted iterations
+spike   [  64% ] 09380/10000 VUs  06.4s/10.0s
+
+running (25.9s), 09380/10000 VUs, 17261 complete and 0 interrupted iterations
+spike   [  73% ] 09380/10000 VUs  07.3s/10.0s
+
+running (27.0s), 09322/10000 VUs, 18023 complete and 0 interrupted iterations
+spike   [  85% ] 09322/10000 VUs  08.5s/10.0s
+
+running (28.0s), 08688/10000 VUs, 18998 complete and 0 interrupted iterations
+spike   [  94% ] 08688/10000 VUs  09.4s/10.0s
+
+running (28.9s), 08021/10000 VUs, 19701 complete and 0 interrupted iterations
+spike   [ 100% ] 08021/10000 VUs  10s
+
+running (29.9s), 07388/10000 VUs, 20334 complete and 0 interrupted iterations
+spike ↓ [ 100% ] 08334/10000 VUs  10s
+
+running (30.9s), 05178/10000 VUs, 22544 complete and 0 interrupted iterations
+spike ↓ [ 100% ] 08334/10000 VUs  10s
+
+running (31.9s), 02957/10000 VUs, 24766 complete and 0 interrupted iterations
+spike ↓ [ 100% ] 08334/10000 VUs  10s
+
+running (32.9s), 00285/10000 VUs, 27437 complete and 0 interrupted iterations
+spike ↓ [ 100% ] 08334/10000 VUs  10s
+
+
+  █ THRESHOLDS 
+
+    http_req_duration{name:reserve}
+    ✗ 'p(99)<200' p(99)=6.98s
+
+    http_req_failed
+    ✗ 'rate==0' rate=0.70%
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 55946  1692.05325/s
+    checks_succeeded...: 73.80% 41292 out of 55946
+    checks_failed......: 26.19% 14654 out of 55946
+
+    ✓ register ok
+    ✓ login ok
+    ✓ consent ok
+    ✓ got authorization code
+    ✓ token exchange ok
+    ✓ drop created
+    ✓ drop opened
+    ✗ reserve succeeded or cleanly sold out
+      ↳  47% — ✓ 13068 / ✗ 14654
+    ✓ no server error
+
+    HTTP
+    http_req_duration..............: avg=2.73s min=1.83ms med=773.14ms max=8.38s p(90)=6.88s p(95)=6.92s
+      { expected_response:true }...: avg=2.75s min=1.83ms med=796.24ms max=8.38s p(90)=6.88s p(95)=6.92s
+      { name:reserve }.............: avg=2.78s min=1.83ms med=842.56ms max=8.38s p(90)=6.88s p(95)=6.92s
+    http_req_failed................: 0.70%  200 out of 28224
+    http_reqs......................: 28224  853.61797/s
+
+    EXECUTION
+    iteration_duration.............: avg=3s    min=2.01ms med=1.71s    max=8.39s p(90)=6.97s p(95)=7.03s
+    iterations.....................: 27722  838.43528/s
+    vus............................: 285    min=0            max=9392 
+    vus_max........................: 10000  min=9373         max=10000
+
+    NETWORK
+    data_received..................: 5.6 MB 170 kB/s
+    data_sent......................: 24 MB  725 kB/s
+
+
+
+
+running (33.1s), 00000/10000 VUs, 27722 complete and 0 interrupted iterations
+spike ✓ [ 100% ] 00000/10000 VUs  10s
+time="2026-09-08T14:17:09Z" level=error msg="thresholds on metrics 'http_req_duration{name:reserve}, http_req_failed' have been crossed"
+[harness] k6 exited 99
