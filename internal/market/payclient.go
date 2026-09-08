@@ -10,6 +10,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+
+	"agora/internal/tracing"
 )
 
 var (
@@ -22,6 +24,8 @@ type PayClient struct {
 	Token   string // PAY_INTERNAL_TOKEN
 }
 
+var httpClient = tracing.Client()
+
 func (p *PayClient) post(ctx context.Context, path string, body map[string]any) error {
 	b, _ := json.Marshal(body)
 	req, err := http.NewRequestWithContext(ctx, "POST", p.BaseURL+path, bytes.NewReader(b))
@@ -30,7 +34,7 @@ func (p *PayClient) post(ctx context.Context, path string, body map[string]any) 
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Internal-Token", p.Token)
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return err
 	}

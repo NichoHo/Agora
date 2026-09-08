@@ -12,6 +12,7 @@ import (
 
 	"agora/internal/authn"
 	"agora/internal/httpx"
+	"agora/internal/tracing"
 )
 
 const reservationTTL = 15 * time.Minute
@@ -53,6 +54,9 @@ func (s *Server) orderRoutes(mux *http.ServeMux) {
 }
 
 func outboxTx(ctx context.Context, tx pgx.Tx, topic string, payload map[string]any) error {
+	if tp := tracing.Traceparent(ctx); tp != "" {
+		payload["_trace"] = tp
+	}
 	b, _ := json.Marshal(payload)
 	_, err := tx.Exec(ctx, `INSERT INTO market.outbox (topic, payload) VALUES ($1, $2)`, topic, b)
 	return err

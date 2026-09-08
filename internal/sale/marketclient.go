@@ -13,13 +13,20 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+
+	"agora/internal/tracing"
 )
 
-var ErrListingUnavailable = errors.New("listing unavailable")
+var (
+	ErrListingUnavailable = errors.New("listing unavailable")
+	ErrPaymentFailed       = errors.New("payment failed")
+)
 
 type MarketClient struct {
 	BaseURL string
 }
+
+var marketHTTPClient = tracing.Client()
 
 func (m *MarketClient) do(ctx context.Context, method, path, bearer string, body any) (*http.Response, error) {
 	var buf bytes.Buffer
@@ -32,7 +39,7 @@ func (m *MarketClient) do(ctx context.Context, method, path, bearer string, body
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+bearer)
-	return http.DefaultClient.Do(req)
+	return marketHTTPClient.Do(req)
 }
 
 // CreateListing mints one sellable unit for a drop, called with the seller's
@@ -80,4 +87,24 @@ func (m *MarketClient) CreateOrder(ctx context.Context, buyerBearer, listingID s
 		return "", err
 	}
 	return out.ID, nil
+}
+
+// PayOrder settles a just-created order immediately, called with the
+// buyer's own bearer token right after CreateOrder in the same checkout
+// request. A drop is time-pressured; there's no reason to make the buyer
+// come back for a second click the way a browse-and-decide purchase would.
+// Surfaces market's existing 402/409/502 outcomes (insufficient funds,
+// already settled, or pay unreachable/still resolving an indeterminate
+// card charge) as ErrPaymentFailed; the reservation stays payment_pending
+// either way; see docs/adr/0003 and docs/writeups/04.
+func (m *MarketClient) PayOrder(ctx context.Context, buyerBearer, orderID string) error {
+	resp, err := m.do(ctx, "POST", "/orders/"+orderID+"/pay", buyerBearer, nil)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return ErrPaymentFailed
+	}
+	return nil
 }

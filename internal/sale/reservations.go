@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -12,6 +13,7 @@ import (
 
 	"agora/internal/authn"
 	"agora/internal/httpx"
+	"agora/internal/tracing"
 )
 
 const defaultReservationTTL = 5 * time.Minute
@@ -47,6 +49,9 @@ func scanReservation(row pgx.Row) (Reservation, error) {
 }
 
 func outboxTx(ctx context.Context, tx pgx.Tx, topic string, payload map[string]any) error {
+	if tp := tracing.Traceparent(ctx); tp != "" {
+		payload["_trace"] = tp
+	}
 	b, _ := json.Marshal(payload)
 	_, err := tx.Exec(ctx, `INSERT INTO sale.outbox (topic, payload) VALUES ($1, $2)`, topic, b)
 	return err
@@ -248,6 +253,16 @@ func (s *Server) handleCheckout(w http.ResponseWriter, r *http.Request) {
 	if err := tx.Commit(r.Context()); err != nil {
 		httpx.Error(w, 500, "db")
 		return
+	}
+	// Best-effort: a drop is time-pressured, so pay immediately instead of
+	// making the buyer click again. Failure (insufficient funds, an
+	// AUTH_UNKNOWN card still resolving, pay unreachable) leaves the
+	// reservation exactly where it already is, payment_pending, which is
+	// the correct state for "not yet settled" either way; the sweeper and
+	// the market-events consumer (confirmReservation/releaseByOrder) are
+	// what actually resolve it, not this response.
+	if err := s.market.PayOrder(r.Context(), bearer, orderID); err != nil {
+		slog.Warn("immediate pay failed, reservation stays payment_pending", "reservation", updated.ID, "err", err)
 	}
 	httpx.JSON(w, 200, updated)
 }
