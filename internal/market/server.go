@@ -246,6 +246,17 @@ func (s *Server) handlePatch(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, 400, "bad json")
 		return
 	}
+	// reserved/sold are the order flow's to set (handleCreateOrder,
+	// handlePayOrder, cancel/refund in orders.go), never a direct seller
+	// edit: a PATCH mid-order could desync the listing from the order it's
+	// tied to (e.g. reopen a listing for a second buyer while the first
+	// order is still funded). So the seller may only ever aim for
+	// draft/active/withdrawn, and only from a listing that isn't currently
+	// in an order-flow state itself.
+	if in.Status != nil && *in.Status != "draft" && *in.Status != "active" && *in.Status != "withdrawn" {
+		httpx.Error(w, 400, "status must be draft, active, or withdrawn")
+		return
+	}
 	l, err := scanListing(s.pool.QueryRow(r.Context(),
 		`UPDATE market.listings SET
 		   title = COALESCE($2, title),
@@ -255,10 +266,10 @@ func (s *Server) handlePatch(w http.ResponseWriter, r *http.Request) {
 		   image_url = COALESCE($6, image_url),
 		   status = COALESCE($7, status),
 		   updated_at = now()
-		 WHERE id = $1 RETURNING `+listingCols,
+		 WHERE id = $1 AND status NOT IN ('reserved', 'sold') RETURNING `+listingCols,
 		r.PathValue("id"), in.Title, in.Description, in.PriceMinor, in.CategoryID, in.ImageURL, in.Status))
 	if err != nil {
-		httpx.Error(w, 400, "invalid update")
+		httpx.Error(w, 409, "listing has an order in progress")
 		return
 	}
 	httpx.JSON(w, 200, l)

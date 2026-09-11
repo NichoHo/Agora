@@ -11,12 +11,22 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+// maxConns caps each service's pool so a traffic spike (sale's reserve
+// endpoint under load, see AGORA_SPEC.md section 11) degrades into queued
+// requests instead of exhausting Postgres's own connection limit and taking
+// every service down with it.
+const maxConns = 20
+
 // Connect retries for ~30s so services survive a Postgres that is still booting.
 func Connect(ctx context.Context, url string) (*pgxpool.Pool, error) {
+	cfg, err := pgxpool.ParseConfig(url)
+	if err != nil {
+		return nil, fmt.Errorf("pg connect: %w", err)
+	}
+	cfg.MaxConns = maxConns
 	var pool *pgxpool.Pool
-	var err error
 	for i := 0; i < 30; i++ {
-		pool, err = pgxpool.New(ctx, url)
+		pool, err = pgxpool.NewWithConfig(ctx, cfg)
 		if err == nil {
 			if err = pool.Ping(ctx); err == nil {
 				return pool, nil

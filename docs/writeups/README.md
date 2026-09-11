@@ -1,6 +1,6 @@
 # Engineering write-ups
 
-Five posts on the parts of [Vault](../../README.md) that were worth building
+Six posts on the parts of [Vault](../../README.md) that were worth building
 from scratch. Each is concrete, with code pulled from the repo.
 
 1. **[Building an OIDC provider from the RFCs (and what I got wrong first)](01-oidc-from-the-rfcs.md)**
@@ -25,3 +25,8 @@ from scratch. Each is concrete, with code pulled from the repo.
    funding path that only worked for wallets, a client that skipped both
    tracing and connection reuse, and a rate limit that turned out to be a
    feature, not a bug.
+
+6. **[A rate limiter that would have locked out real users](06-a-rate-limiter-that-would-have-locked-out-real-users.md)**
+   Hardening `id`'s login and MFA routes, a missing `go.mod` dependency the
+   first build caught, and a shared rate-limit bucket across seven routes
+   that only the full test suite caught.

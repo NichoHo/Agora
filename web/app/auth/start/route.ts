@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { WEB_ORIGIN } from "@/lib/env";
+import { WEB_ORIGIN, SECURE_COOKIES } from "@/lib/env";
 import { safePath } from "@/lib/auth";
 
 // Begins the OIDC Authorization Code + PKCE flow against our own IdP.
@@ -12,7 +12,13 @@ export async function GET(req: Request) {
   const state = randomBytes(16).toString("base64url");
 
   const c = await cookies();
-  const opts = { httpOnly: true, sameSite: "lax" as const, path: "/", maxAge: 600 };
+  const opts = {
+    httpOnly: true,
+    sameSite: "lax" as const,
+    secure: SECURE_COOKIES,
+    path: "/",
+    maxAge: 600,
+  };
   c.set("pkce_verifier", verifier, opts);
   c.set("oauth_state", state, opts);
   c.set("post_auth_next", safePath(url.searchParams.get("next")), opts);

@@ -3,6 +3,7 @@ package id
 import (
 	"context"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -17,6 +18,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"agora/internal/httpx"
+	"agora/internal/ratelimit"
 	"agora/internal/tracing"
 )
 
@@ -28,20 +30,29 @@ const (
 )
 
 type Server struct {
-	pool   *pgxpool.Pool
-	signer *Signer
-	issuer string
-	webURL string
+	pool    *pgxpool.Pool
+	signer  *Signer
+	issuer  string
+	webURL  string
+	totpKey [32]byte
 }
 
-func NewServer(pool *pgxpool.Pool, signer *Signer, issuer, webURL string) http.Handler {
-	s := &Server{pool: pool, signer: signer, issuer: issuer, webURL: webURL}
+func NewServer(pool *pgxpool.Pool, signer *Signer, issuer, webURL, totpKeyPassphrase string) http.Handler {
+	s := &Server{pool: pool, signer: signer, issuer: issuer, webURL: webURL,
+		totpKey: sha256.Sum256([]byte(totpKeyPassphrase))}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
 		httpx.JSON(w, 200, map[string]bool{"ok": true})
 	})
-	mux.HandleFunc("POST /register", s.handleRegister)
-	mux.HandleFunc("POST /login", s.handleLogin)
+	// Tighter limit on the security-sensitive routes a credential-stuffing
+	// or brute-force attempt would hit: login, registration, MFA verify
+	// (wired in mfaRoutes), password change. 2 req/s per IP with a burst of
+	// 10 covers a real user mistyping a code a few times in a row. Each route
+	// gets its own limiter instance (its own budget): a burst spent retrying
+	// a TOTP code must not also lock the user out of the unrelated /login
+	// they'd need to try again.
+	mux.HandleFunc("POST /register", ratelimit.New(2, 10).Wrap(s.handleRegister))
+	mux.HandleFunc("POST /login", ratelimit.New(2, 10).Wrap(s.handleLogin))
 	mux.HandleFunc("POST /logout", s.handleLogout)
 	mux.HandleFunc("GET /me", s.handleMe)
 	mux.HandleFunc("GET /authorize", s.handleAuthorize)
@@ -49,6 +60,8 @@ func NewServer(pool *pgxpool.Pool, signer *Signer, issuer, webURL string) http.H
 	mux.HandleFunc("POST /token", s.handleToken)
 	mux.HandleFunc("GET /.well-known/openid-configuration", s.handleDiscovery)
 	mux.HandleFunc("GET /.well-known/jwks.json", s.handleJWKS)
+	mux.HandleFunc("POST /password", ratelimit.New(2, 10).Wrap(s.handleChangePassword))
+	mux.HandleFunc("POST /deactivate", s.handleDeactivate)
 	s.mfaRoutes(mux)
 	return mux
 }
@@ -189,10 +202,11 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
 	in.Email = strings.ToLower(strings.TrimSpace(in.Email))
 	var u sessionUser
 	var hash string
+	var active bool
 	err := s.pool.QueryRow(r.Context(),
-		`SELECT u.id, u.email, u.handle, c.password_hash
+		`SELECT u.id, u.email, u.handle, u.is_active, c.password_hash
 		 FROM id.users u JOIN id.credentials c ON c.user_id = u.id
-		 WHERE u.email = $1`, in.Email).Scan(&u.ID, &u.Email, &u.Handle, &hash)
+		 WHERE u.email = $1`, in.Email).Scan(&u.ID, &u.Email, &u.Handle, &active, &hash)
 	if errors.Is(err, pgx.ErrNoRows) {
 		// burn time so absent accounts cost the same as wrong passwords
 		HashPassword(in.Password)
@@ -206,6 +220,13 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 	if ok, _ := VerifyPassword(in.Password, hash); !ok {
 		s.audit(r.Context(), u.ID, "login.fail", map[string]any{"reason": "bad password"})
+		httpx.Error(w, 401, "invalid credentials")
+		return
+	}
+	if !active {
+		// same generic message as any other failed login: a deactivated
+		// account shouldn't be distinguishable from a wrong password.
+		s.audit(r.Context(), u.ID, "login.fail", map[string]any{"reason": "deactivated"})
 		httpx.Error(w, 401, "invalid credentials")
 		return
 	}

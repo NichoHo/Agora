@@ -129,7 +129,7 @@ export default function MfaManager() {
           <Input
             name="code"
             required
-            autoComplete="one-time-code"
+            autoComplete="off"
             inputMode="numeric"
             placeholder="123456"
             className="text-center tracking-widest"

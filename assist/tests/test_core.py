@@ -7,7 +7,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from app.suggest import heuristic_suggestion, price_band  # noqa: E402
+from app.suggest import heuristic_suggestion, price_band, validate_suggestion  # noqa: E402
 from app.trust import score_listing_created, score_order_created  # noqa: E402
 
 NOW = datetime(2026, 7, 19, 12, 0, tzinfo=timezone.utc)
@@ -30,12 +30,48 @@ def test_price_band_edges():
 
 
 def test_heuristic_suggestion():
-    s = heuristic_suggestion("  Nikon FM2 camera  ")
-    assert s["title"] == "Nikon FM2 camera"
+    s = heuristic_suggestion("  Film SLR camera  ")
+    assert s["title"] == "Film SLR camera"
     assert s["category_slug"] == "other"
     assert s["model"] == "heuristic"
     assert heuristic_suggestion("")["title"] == "Untitled item"
     assert len(heuristic_suggestion("x" * 300)["title"]) == 80
+
+
+def test_validate_suggestion_accepts_well_formed_output():
+    assert validate_suggestion(
+        {
+            "title": "Vintage 35mm camera",
+            "description": "A well-loved film SLR. Light scratches on the body.",
+            "category_slug": "electronics",
+            "search_terms": "35mm film camera",
+        }
+    )
+
+
+def test_validate_suggestion_rejects_unknown_category():
+    assert not validate_suggestion(
+        {
+            "title": "x",
+            "description": "y",
+            "category_slug": "not-a-real-category",  # not in CATEGORY_SLUGS
+            "search_terms": "z",
+        }
+    )
+
+
+def test_validate_suggestion_rejects_bad_shapes():
+    assert not validate_suggestion({})
+    assert not validate_suggestion(
+        {"title": "", "description": "y", "category_slug": "other", "search_terms": "z"}
+    )
+    assert not validate_suggestion(
+        {"title": "x" * 500, "description": "y", "category_slug": "other", "search_terms": "z"}
+    )
+    assert not validate_suggestion(
+        {"title": 123, "description": "y", "category_slug": "other", "search_terms": "z"}
+    )
+    assert not validate_suggestion("not a dict")
 
 
 def test_new_seller_high_value_flagged():

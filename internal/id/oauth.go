@@ -166,9 +166,14 @@ func (s *Server) handleToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var email string
+	var active bool
 	if err := s.pool.QueryRow(r.Context(),
-		`SELECT email FROM id.users WHERE id = $1`, userID).Scan(&email); err != nil {
+		`SELECT email, is_active FROM id.users WHERE id = $1`, userID).Scan(&email, &active); err != nil {
 		httpx.Error(w, 500, "db")
+		return
+	}
+	if !active {
+		invalidGrant(w)
 		return
 	}
 	now := time.Now()
@@ -271,9 +276,19 @@ func (s *Server) handleRefreshGrant(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var email string
+	var active bool
 	if err := s.pool.QueryRow(r.Context(),
-		`SELECT email FROM id.users WHERE id = $1`, userID).Scan(&email); err != nil {
+		`SELECT email, is_active FROM id.users WHERE id = $1`, userID).Scan(&email, &active); err != nil {
 		httpx.Error(w, 500, "db")
+		return
+	}
+	if !active {
+		// deactivation already revokes every refresh token for the user
+		// (handleDeactivate), so this path is normally caught by the
+		// revoked_at check above; kept as a direct check too so a refresh
+		// can never mint a fresh access token for a deactivated account
+		// regardless of how is_active came to be false.
+		invalidGrant(w)
 		return
 	}
 	now := time.Now()

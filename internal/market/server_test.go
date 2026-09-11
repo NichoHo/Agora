@@ -118,13 +118,13 @@ func TestListingsCRUD(t *testing.T) {
 
 	// create
 	resp := e.do(t, "POST", "/listings", at, map[string]any{
-		"title": "Nikon FM2 film camera", "description": "classic slr, works great", "price_minor": 42000})
+		"title": "Vintage film SLR camera", "description": "classic, works great", "price_minor": 42000})
 	if resp.StatusCode != 201 {
 		t.Fatalf("create: want 201, got %d", resp.StatusCode)
 	}
 	var l Listing
 	json.NewDecoder(resp.Body).Decode(&l)
-	if l.SellerID != alice || l.Status != "active" || l.Currency != "JPY" {
+	if l.SellerID != alice || l.Status != "active" || l.Currency != "USD" {
 		t.Fatalf("bad listing: %+v", l)
 	}
 
@@ -149,9 +149,19 @@ func TestListingsCRUD(t *testing.T) {
 		t.Fatalf("non-owner patch: want 403, got %d", resp.StatusCode)
 	}
 
-	// invalid status rejected by DB constraint
+	// invalid status rejected
 	if resp := e.do(t, "PATCH", "/listings/"+l.ID, at, map[string]any{"status": "bogus"}); resp.StatusCode != 400 {
 		t.Fatalf("bogus status: want 400, got %d", resp.StatusCode)
+	}
+
+	// reserved/sold are the order flow's to set, not a direct seller edit
+	// (a listing stuck at "reserved" with no real order would let this
+	// endpoint reopen it for a second buyer mid-payment)
+	if resp := e.do(t, "PATCH", "/listings/"+l.ID, at, map[string]any{"status": "reserved"}); resp.StatusCode != 400 {
+		t.Fatalf("direct reserved: want 400, got %d", resp.StatusCode)
+	}
+	if resp := e.do(t, "PATCH", "/listings/"+l.ID, at, map[string]any{"status": "sold"}); resp.StatusCode != 400 {
+		t.Fatalf("direct sold: want 400, got %d", resp.StatusCode)
 	}
 
 	// FTS: word in title found, absent word not
@@ -163,8 +173,8 @@ func TestListingsCRUD(t *testing.T) {
 		json.NewDecoder(resp.Body).Decode(&out)
 		return len(out.Items)
 	}
-	if n := search("nikon"); n != 1 {
-		t.Fatalf("search nikon: want 1, got %d", n)
+	if n := search("slr"); n != 1 {
+		t.Fatalf("search slr: want 1, got %d", n)
 	}
 	if n := search("zeppelin"); n != 0 {
 		t.Fatalf("search zeppelin: want 0, got %d", n)
@@ -172,7 +182,7 @@ func TestListingsCRUD(t *testing.T) {
 
 	// withdrawn listings leave the feed
 	e.do(t, "PATCH", "/listings/"+l.ID, at, map[string]any{"status": "withdrawn"})
-	if n := search("nikon"); n != 0 {
+	if n := search("slr"); n != 0 {
 		t.Fatalf("withdrawn still in feed: got %d", n)
 	}
 

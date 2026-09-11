@@ -160,11 +160,13 @@ func (s *Server) handleReserve(w http.ResponseWriter, r *http.Request) {
 	case err == nil:
 		httpx.JSON(w, 201, res)
 	case errors.Is(err, ErrDropNotOpen):
-		httpx.Error(w, 409, err.Error())
+		httpx.Error(w, 409, "drop is not open")
 	case errors.Is(err, ErrNotAdmitted):
-		httpx.Error(w, 403, err.Error())
-	case errors.Is(err, ErrPerUserCap), errors.Is(err, ErrSoldOut):
-		httpx.JSON(w, 409, map[string]string{"error": err.Error()})
+		httpx.Error(w, 403, "not admitted; join the queue first")
+	case errors.Is(err, ErrPerUserCap):
+		httpx.JSON(w, 409, map[string]string{"error": "per_user_cap_reached"})
+	case errors.Is(err, ErrSoldOut):
+		httpx.JSON(w, 409, map[string]string{"error": "sold_out"})
 	case errors.Is(err, pgx.ErrNoRows):
 		httpx.Error(w, 404, "drop not found")
 	default:

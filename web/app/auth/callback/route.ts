@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { ID_URL, WEB_ORIGIN } from "@/lib/env";
+import { ID_URL, WEB_ORIGIN, SECURE_COOKIES } from "@/lib/env";
 import { safePath } from "@/lib/auth";
 
 // OIDC redirect_uri: exchanges the auth code (server-side, with the PKCE
@@ -45,6 +45,7 @@ export async function GET(req: Request) {
   c.set("vault_token", tok.access_token, {
     httpOnly: true,
     sameSite: "lax",
+    secure: SECURE_COOKIES,
     path: "/",
     maxAge: tok.expires_in,
   });
@@ -52,6 +53,7 @@ export async function GET(req: Request) {
     c.set("vault_refresh", tok.refresh_token, {
       httpOnly: true,
       sameSite: "lax",
+      secure: SECURE_COOKIES,
       path: "/",
       maxAge: 30 * 24 * 3600,
     });

@@ -45,6 +45,19 @@ func NewServer(pool *pgxpool.Pool, auth *authn.Verifier, internalToken string, s
 
 // internal guards service-to-service money endpoints: only holders of the
 // shared PAY_INTERNAL_TOKEN (i.e. market) may move escrow.
+//
+// handleFund's amount_minor is trusted from the request body once past this
+// gate, not independently re-verified against any order record pay owns
+// (pay has no orders/listings table of its own). Signing (order_id,
+// amount_minor) with a second shared secret was considered and rejected: it
+// would use the same market-only secret this gate already checks, so it
+// raises the bar against nothing a leaked PAY_INTERNAL_TOKEN doesn't already
+// defeat. The actual boundary is that only market holds this token, and
+// market itself always computes amount server-side from listings.price_minor
+// / sale_drops.price_minor (see internal/market/orders.go). Revisit if a
+// third caller ever needs this token, or if pay grows its own copy of order
+// data to check against.
+
 func (s *Server) internal(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		got := r.Header.Get("X-Internal-Token")

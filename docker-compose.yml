@@ -5,8 +5,12 @@ services:
       POSTGRES_USER: vault
       POSTGRES_PASSWORD: vault
       POSTGRES_DB: vault
-    ports:
-      - "5432:5432"
+    # No published port: this same compose file is what deploy/oracle runs,
+    # and Postgres on the public internet with these default credentials is
+    # exactly what gets found by credential-stuffing scans. Reach it via
+    # `docker compose exec db psql -U vault -d vault`, or add a
+    # docker-compose.override.yml (gitignored) with your own `ports:` for a
+    # local GUI client.
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U vault"]
       interval: 2s
@@ -17,8 +21,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    ports:
-      - "6379:6379"
+    # No published port; see the db service's comment above.
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 2s
@@ -34,8 +37,7 @@ services:
       - --node-id 0
       - --kafka-addr PLAINTEXT://0.0.0.0:9092
       - --advertise-kafka-addr PLAINTEXT://redpanda:9092
-    ports:
-      - "9092:9092"
+    # No published port; see the db service's comment above.
     healthcheck:
       test: ["CMD-SHELL", "rpk cluster health | grep -q 'Healthy:.*true'"]
       interval: 3s
@@ -62,6 +64,7 @@ services:
       WEB_URL: http://${PUBLIC_HOST:-localhost}:3001
       REDPANDA_BROKERS: redpanda:9092
       OTEL_EXPORTER_OTLP_ENDPOINT: jaeger:4318
+      TOTP_ENCRYPTION_KEY: dev-insecure-totp-encryption-key
     depends_on:
       db:
         condition: service_healthy

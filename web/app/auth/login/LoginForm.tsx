@@ -4,6 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
+import { REGEXP_ONLY_DIGITS } from "input-otp";
 
 export default function LoginForm({ returnTo }: { returnTo: string }) {
   const [error, setError] = useState("");
@@ -55,33 +61,53 @@ export default function LoginForm({ returnTo }: { returnTo: string }) {
 
   if (step !== "password") {
     return (
-      <form onSubmit={submitCode} className="flex flex-col gap-3">
+      <form onSubmit={submitCode} className="flex flex-col gap-4">
         <p className="text-sm text-muted-foreground">
           {step === "totp"
             ? "Enter the 6-digit code from your authenticator app."
             : "Enter one of your recovery codes."}
         </p>
-        <Input
-          name="code"
-          required
-          autoFocus
-          autoComplete="one-time-code"
-          spellCheck={false}
-          aria-label={step === "totp" ? "Authenticator code" : "Recovery code"}
-          inputMode={step === "totp" ? "numeric" : "text"}
-          placeholder={step === "totp" ? "123456" : "recovery code"}
-          className="text-center tracking-widest"
-        />
+        {step === "totp" ? (
+          <InputOTP
+            key={step}
+            name="code"
+            maxLength={6}
+            pattern={REGEXP_ONLY_DIGITS}
+            required
+            autoFocus
+            autoComplete="off"
+            aria-label="Authenticator code"
+            containerClassName="justify-center"
+          >
+            <InputOTPGroup>
+              {[0, 1, 2, 3, 4, 5].map((i) => (
+                <InputOTPSlot key={i} index={i} className="size-11 text-lg" />
+              ))}
+            </InputOTPGroup>
+          </InputOTP>
+        ) : (
+          <Input
+            key={step}
+            name="code"
+            required
+            autoFocus
+            autoComplete="off"
+            spellCheck={false}
+            aria-label="Recovery code"
+            placeholder="recovery code"
+            className="h-10 text-center text-lg tracking-widest"
+          />
+        )}
         <p aria-live="polite" className="text-sm text-danger empty:hidden">
           {error}
         </p>
-        <Button type="submit" disabled={busy}>
+        <Button size="lg" className="h-10" type="submit" disabled={busy}>
           {busy ? "Verifying…" : "Verify"}
         </Button>
         <button
           type="button"
           onClick={() => setStep(step === "totp" ? "recovery" : "totp")}
-          className="text-sm text-primary underline"
+          className="text-sm text-primary underline underline-offset-4"
         >
           {step === "totp" ? "Use a recovery code instead" : "Use authenticator code"}
         </button>
@@ -90,7 +116,7 @@ export default function LoginForm({ returnTo }: { returnTo: string }) {
   }
 
   return (
-    <form onSubmit={submitPassword} className="flex flex-col gap-3">
+    <form onSubmit={submitPassword} className="flex flex-col gap-4">
       <Input
         name="email"
         type="email"
@@ -99,6 +125,7 @@ export default function LoginForm({ returnTo }: { returnTo: string }) {
         spellCheck={false}
         aria-label="Email"
         placeholder="Email"
+        className="h-10"
       />
       <Input
         name="password"
@@ -107,18 +134,19 @@ export default function LoginForm({ returnTo }: { returnTo: string }) {
         autoComplete="current-password"
         aria-label="Password"
         placeholder="Password"
+        className="h-10"
       />
       <p aria-live="polite" className="text-sm text-danger empty:hidden">
         {error}
       </p>
-      <Button type="submit" disabled={busy}>
+      <Button size="lg" className="h-10" type="submit" disabled={busy}>
         {busy ? "Signing in…" : "Sign in"}
       </Button>
       <p className="text-center text-sm text-muted-foreground">
         No account?{" "}
         <Link
           href={`/auth/register?return_to=${encodeURIComponent(returnTo)}`}
-          className="text-primary underline"
+          className="text-primary underline underline-offset-4"
         >
           Register
         </Link>

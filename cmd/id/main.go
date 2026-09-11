@@ -55,7 +55,8 @@ func main() {
 
 	srv := id.NewServer(pool, signer,
 		env("ID_ISSUER", "http://localhost:8081"),
-		env("WEB_URL", "http://localhost:3000"))
+		env("WEB_URL", "http://localhost:3000"),
+		env("TOTP_ENCRYPTION_KEY", "dev-insecure-totp-encryption-key"))
 
 	addr := ":" + env("PORT", "8081")
 	slog.Info("id listening", "addr", addr)

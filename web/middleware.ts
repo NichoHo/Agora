@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { SECURE_COOKIES } from "@/lib/env";
 
 // Rotating-refresh middleware: when the access token is missing/expired but a
 // refresh token exists, rotate it at the IdP and continue the request with
@@ -50,10 +51,10 @@ export async function middleware(req: NextRequest) {
     req.cookies.set("vault_token", tok.access_token);
     const out = NextResponse.next({ request: { headers: req.headers } });
     out.cookies.set("vault_token", tok.access_token, {
-      httpOnly: true, sameSite: "lax", path: "/", maxAge: tok.expires_in,
+      httpOnly: true, sameSite: "lax", secure: SECURE_COOKIES, path: "/", maxAge: tok.expires_in,
     });
     out.cookies.set("vault_refresh", tok.refresh_token, {
-      httpOnly: true, sameSite: "lax", path: "/", maxAge: 30 * 24 * 3600,
+      httpOnly: true, sameSite: "lax", secure: SECURE_COOKIES, path: "/", maxAge: 30 * 24 * 3600,
     });
     return out;
   } catch {

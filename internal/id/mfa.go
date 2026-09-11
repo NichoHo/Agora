@@ -1,27 +1,78 @@
 package id
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"time"
 
 	"agora/internal/httpx"
+	"agora/internal/ratelimit"
 )
 
 func (s *Server) mfaRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /mfa", s.handleMFAStatus)
 	mux.HandleFunc("POST /mfa/enroll", s.handleMFAEnroll)
-	mux.HandleFunc("POST /mfa/activate", s.handleMFAActivate)
-	mux.HandleFunc("POST /mfa/disable", s.handleMFADisable)
-	mux.HandleFunc("POST /login/totp", s.handleLoginTOTP)
-	mux.HandleFunc("POST /login/recovery", s.handleLoginRecovery)
+	mux.HandleFunc("POST /mfa/activate", ratelimit.New(2, 10).Wrap(s.handleMFAActivate))
+	mux.HandleFunc("POST /mfa/disable", ratelimit.New(2, 10).Wrap(s.handleMFADisable))
+	mux.HandleFunc("POST /login/totp", ratelimit.New(2, 10).Wrap(s.handleLoginTOTP))
+	mux.HandleFunc("POST /login/recovery", ratelimit.New(2, 10).Wrap(s.handleLoginRecovery))
 }
 
 func hashCode(code string) string {
 	h := sha256.Sum256([]byte(code))
 	return hex.EncodeToString(h[:])
+}
+
+// encryptTOTPSecret/decryptTOTPSecret: unlike passwords and recovery codes,
+// a TOTP secret must be recoverable (every login re-derives the code from
+// it), so encryption, not hashing. AES-256-GCM keyed by SHA-256 of
+// TOTP_ENCRYPTION_KEY, the same passphrase-to-key shape this repo already
+// uses for its other shared secrets (see SALE_TOKEN_SECRET).
+func (s *Server) encryptTOTPSecret(plaintext string) (string, error) {
+	block, err := aes.NewCipher(s.totpKey[:])
+	if err != nil {
+		return "", err
+	}
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", err
+	}
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err := rand.Read(nonce); err != nil {
+		return "", err
+	}
+	return base64.StdEncoding.EncodeToString(gcm.Seal(nonce, nonce, []byte(plaintext), nil)), nil
+}
+
+func (s *Server) decryptTOTPSecret(encoded string) (string, error) {
+	ciphertext, err := base64.StdEncoding.DecodeString(encoded)
+	if err != nil {
+		return "", err
+	}
+	block, err := aes.NewCipher(s.totpKey[:])
+	if err != nil {
+		return "", err
+	}
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", err
+	}
+	if len(ciphertext) < gcm.NonceSize() {
+		return "", errors.New("totp ciphertext too short")
+	}
+	nonce, ct := ciphertext[:gcm.NonceSize()], ciphertext[gcm.NonceSize():]
+	plaintext, err := gcm.Open(nil, nonce, ct, nil)
+	if err != nil {
+		return "", err
+	}
+	return string(plaintext), nil
 }
 
 func (s *Server) mfaEnabled(r *http.Request, userID string) bool {
@@ -51,10 +102,15 @@ func (s *Server) handleMFAEnroll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	secret := GenerateTOTPSecret()
+	encrypted, err := s.encryptTOTPSecret(secret)
+	if err != nil {
+		httpx.Error(w, 500, "encrypt")
+		return
+	}
 	if _, err := s.pool.Exec(r.Context(),
 		`INSERT INTO id.totp_secrets (user_id, secret, confirmed) VALUES ($1, $2, false)
 		 ON CONFLICT (user_id) DO UPDATE SET secret = $2, confirmed = false, created_at = now()`,
-		u.ID, secret); err != nil {
+		u.ID, encrypted); err != nil {
 		httpx.Error(w, 500, "db")
 		return
 	}
@@ -75,12 +131,17 @@ func (s *Server) handleMFAActivate(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, 400, "bad json")
 		return
 	}
-	var secret string
+	var encrypted string
 	var confirmed bool
 	if err := s.pool.QueryRow(r.Context(),
 		`SELECT secret, confirmed FROM id.totp_secrets WHERE user_id = $1`, u.ID).
-		Scan(&secret, &confirmed); err != nil || confirmed {
+		Scan(&encrypted, &confirmed); err != nil || confirmed {
 		httpx.Error(w, 409, "no pending enrollment")
+		return
+	}
+	secret, err := s.decryptTOTPSecret(encrypted)
+	if err != nil {
+		httpx.Error(w, 500, "decrypt")
 		return
 	}
 	if _, ok := VerifyTOTP(secret, in.Code, time.Now()); !ok {
@@ -134,11 +195,16 @@ func (s *Server) handleMFADisable(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, 400, "bad json")
 		return
 	}
-	var secret string
+	var encrypted string
 	if err := s.pool.QueryRow(r.Context(),
 		`SELECT secret FROM id.totp_secrets WHERE user_id = $1 AND confirmed`, u.ID).
-		Scan(&secret); err != nil {
+		Scan(&encrypted); err != nil {
 		httpx.Error(w, 409, "mfa not enabled")
+		return
+	}
+	secret, err := s.decryptTOTPSecret(encrypted)
+	if err != nil {
+		httpx.Error(w, 500, "decrypt")
 		return
 	}
 	if _, ok := VerifyTOTP(secret, in.Code, time.Now()); !ok {
@@ -177,11 +243,16 @@ func (s *Server) handleLoginTOTP(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, 400, "bad json")
 		return
 	}
-	var secret string
+	var encrypted string
 	if err := s.pool.QueryRow(r.Context(),
 		`SELECT secret FROM id.totp_secrets WHERE user_id = $1 AND confirmed`, u.ID).
-		Scan(&secret); err != nil {
+		Scan(&encrypted); err != nil {
 		httpx.Error(w, 409, "mfa not enabled")
+		return
+	}
+	secret, err := s.decryptTOTPSecret(encrypted)
+	if err != nil {
+		httpx.Error(w, 500, "decrypt")
 		return
 	}
 	step, ok := VerifyTOTP(secret, in.Code, time.Now())

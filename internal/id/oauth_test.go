@@ -57,7 +57,7 @@ func testEnv(t *testing.T) (*httptest.Server, *http.Client, *pgxpool.Pool) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	ts := httptest.NewServer(NewServer(pool, signer, testIssuer, "http://web.test"))
+	ts := httptest.NewServer(NewServer(pool, signer, testIssuer, "http://web.test", "test-totp-key"))
 	t.Cleanup(ts.Close)
 	jar, _ := cookiejar.New(nil)
 	client := &http.Client{Jar: jar, CheckRedirect: func(*http.Request, []*http.Request) error {
