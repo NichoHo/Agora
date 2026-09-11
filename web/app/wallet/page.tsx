@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Reveal from "@/components/motion/Reveal";
 import ServiceUnavailable from "@/components/ServiceUnavailable";
-import { fetchWallet, payDeposit, yen, type Wallet } from "@/lib/api";
+import { fetchWallet, payDeposit, usd, type Wallet } from "@/lib/api";
 import { getToken } from "@/lib/auth";
 
 async function topUpAction() {
@@ -26,7 +26,7 @@ const kindLabel: Record<string, string> = {
 export default async function WalletPage() {
   const token = await getToken();
   if (!token) redirect("/auth/start?next=/wallet");
-  // A pay-service outage must never render as a ¥0 balance, which reads as
+  // A pay-service outage must never render as a $0.00 balance, which reads as
   // "your money is gone". Keep unreachable distinct from unauthorized.
   let wallet: Wallet | null = null;
   let unreachable = false;
@@ -55,9 +55,9 @@ export default async function WalletPage() {
       <Card>
         <CardContent className="text-center">
           <p className="text-sm text-muted-foreground">Balance</p>
-          <p className="money text-4xl font-bold text-ink">{yen(wallet.balance_minor)}</p>
+          <p className="money text-4xl font-bold text-ink">{usd(wallet.balance_minor)}</p>
           <form action={topUpAction} className="mt-4">
-            <Button type="submit">Add ¥50,000 demo funds</Button>
+            <Button type="submit">Add $500 demo funds</Button>
           </form>
         </CardContent>
       </Card>
@@ -91,7 +91,7 @@ export default async function WalletPage() {
                   className={`money font-medium ${e.amount_minor > 0 ? "text-success" : "text-danger"}`}
                 >
                   {e.amount_minor > 0 ? "+" : ""}
-                  {yen(e.amount_minor).replace("¥-", "-¥")}
+                  {usd(e.amount_minor)}
                 </span>
               </li>
             );

@@ -75,7 +75,7 @@ surface scale + soft elevation + glass, not heavy shadows.
 
 * **Neutral surface scale (depth via surface, not shadow):** `canvas #F6F7F9` app bg · `surface #FFFFFF` cards · `surface-2 #FBFCFD` raised/alt. Text ramp: `ink #0F1524` · `ink-2 #38414F` · `muted #5B6474` · `faint #9096A2`. Lines/fills: `line #E6E8EE` hairline · `line-strong #D3D7DF` · `fill #EEF0F4`.
 * **Accent (single trust hue):** `accent #4F46E5` indigo — links, primary CTAs, focus ring, security contexts · `accent-strong #4338CA` hover · `accent-tint #EEF0FE`. Semantics: `success #157A53` escrow/paid · `warning #B45309` pending · `danger #C81E14` errors/destructive/negative money, each with a `-tint` surface. Solid fills always take `text-on-solid` (never `text-white`) so they survive the dark-theme flip.
-* **Type:** Inter + Noto Sans JP via `next/font`; scale 12/14/16/20/24/32/48; weights 400/500/600/700; `tabular-nums` on all money; tight tracking on headings.
+* **Type:** Plus Jakarta Sans via `next/font`; scale 12/14/16/20/24/32/48; weights 400/500/600/700; `tabular-nums` on all money; tight tracking on headings.
 * **Shape/space:** 4px grid, radii 10/14px (`control`/`card`), hero 20px. Generous rhythm — `max-w-6xl`, responsive `px-4→8`, section `gap-12→16`.
 * **Elevation & glass:** three soft layered shadows (`sm`/`md`/`lg`) for cards + hover lift; frosted `glass` (blur + translucent surface) on sticky chrome; `wash-accent` gradient for hero/feature surfaces.
 * **Components:** Button, Input, Select, Modal, Toast, Tabs, Badge (fixed state-color map), Card, ListingCard (surface card, soft hover lift + image zoom), PriceTag, Timeline, DataTable, Skeleton, EmptyState, SuggestionField (the AI-prefilled input).

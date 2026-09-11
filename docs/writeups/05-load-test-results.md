@@ -128,7 +128,7 @@ limiter. So scenario 4's target is reported as a miss, and the reason is
 Every scenario that touched money (`4`, `5`) ended with
 [`verify_invariants.sql`](../verify_invariants.sql): zero unbalanced
 transfers, a global entry sum of exactly zero, zero accounts drifted from
-their entries. Whatever else went wrong under load, no yen was created,
+their entries. Whatever else went wrong under load, no cent was created,
 destroyed, or misplaced.
 
 ## What actually needed fixing, and what didn't

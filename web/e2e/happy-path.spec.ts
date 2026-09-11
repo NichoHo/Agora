@@ -4,12 +4,12 @@ import { totp } from "./totp";
 // Full Phase-4 happy path against a running compose stack (make up + seed):
 // register → MFA enroll + step-up → AI-assisted listing → escrow buy →
 // ship → confirm → wallet reconciles. The seller is a fresh random account;
-// the buyer is seeded bob (¥100,000, MFA off).
+// the buyer is seeded bob ($1,000, MFA off).
 
 const uniq = Date.now();
 const seller = { email: `seller-${uniq}@vault.test`, handle: `s${uniq}`, password: "e2e-pass-123" };
 const bob = { email: "bob@vault.test", password: "password123!" };
-const PRICE = 5000;
+const PRICE = 5000; // cents
 
 // The OIDC redirect chain ends on either the consent screen (first authorization
 // for this user+client) or a signed-in page. Race the two so we resolve as soon
@@ -49,13 +49,13 @@ async function login(page: Page, email: string, password: string, totpSecret?: s
 
 async function balance(page: Page): Promise<number> {
   await page.goto("/wallet");
-  const text = await page.locator(".money").first().innerText(); // "¥95,000"
-  return Number(text.replace(/[^0-9]/g, ""));
+  const text = await page.locator(".money").first().innerText(); // "$950.00"
+  return Number(text.replace(/[^0-9]/g, "")); // digits only → cents
 }
 
 async function openOrder(page: Page, role: "buyer" | "seller") {
   await page.goto(`/orders?role=${role}`);
-  await page.getByRole("link").filter({ hasText: "Sony WH-1000XM4" }).first().click();
+  await page.getByRole("link").filter({ hasText: "noise-cancelling headphones" }).first().click();
 }
 
 test("register, MFA, AI listing, escrow buy, wallet reconcile", async ({ browser }) => {
@@ -79,10 +79,10 @@ test("register, MFA, AI listing, escrow buy, wallet reconcile", async ({ browser
   await expect(sellerPage.getByRole("heading", { name: "Sell an item" })).toBeVisible();
 
   // 2. AI-assisted listing: hint → Suggest fills the fields → override the price.
-  await sellerPage.getByPlaceholder("Title").fill("Sony WH-1000XM4 headphones");
+  await sellerPage.getByPlaceholder("Title").fill("Wireless noise-cancelling headphones");
   await sellerPage.getByRole("button", { name: /Suggest/ }).click();
   await expect(sellerPage.getByText(/Similar items sold for/)).toBeVisible();
-  await sellerPage.getByPlaceholder("Price (yen)").fill(String(PRICE));
+  await sellerPage.getByPlaceholder("Price (USD)").fill((PRICE / 100).toFixed(2));
   await sellerPage.getByRole("button", { name: "List it" }).click();
   await expect(sellerPage).toHaveURL(/\/listing\//);
   const listingURL = sellerPage.url();

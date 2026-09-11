@@ -16,7 +16,7 @@ where it earns its keep.
 Vault's `pay` service is a double-entry ledger. Every movement of money is a
 `transfer` that writes two signed `entries`, one debit and one credit, that sum
 to zero. Accounts are users, an escrow pool, a platform-revenue account, and an
-`external` source for demo deposits. Balances are `int64` minor units (JPY); there
+`external` source for demo deposits. Balances are `int64` minor units (US cents); there
 is no floating point anywhere near money.
 
 That design exists to *make invariants checkable*. If every transfer's entries
@@ -40,7 +40,7 @@ func checkBooks(t *testing.T, l *Ledger) {
 `(a)` is per-transfer integrity. `(b)` is the big one: money is neither created
 nor destroyed anywhere in the system. `(c)` catches the cached `balance`
 column drifting from the source-of-truth entries. Every money test ends with
-`checkBooks`. A bug that leaks a yen fails `(b)`; a bug that updates a balance
+`checkBooks`. A bug that leaks a cent fails `(b)`; a bug that updates a balance
 without a matching entry fails `(c)`.
 
 The database backs the invariant with a hard constraint, so it can't be violated
@@ -55,8 +55,8 @@ defense for the next invariant.
 
 ## Invariant 2: concurrent double-spends fail
 
-This is the one examples can't catch. Give a buyer ¥10,000 and fire twenty
-goroutines each trying to spend ¥1,000 into escrow on *different* orders. Exactly
+This is the one examples can't catch. Give a buyer $100 and fire twenty
+goroutines each trying to spend $10 into escrow on *different* orders. Exactly
 ten must succeed; the balance must land at exactly zero and never go negative:
 
 ```go
@@ -102,7 +102,7 @@ if balance(t, l, "platform", nil) != 3_000 { t.Fatal("platform should get 10%") 
 ```
 
 There's a matching refund test (escrow → buyer, buyer made whole, escrow zero).
-Both end in `checkBooks`. If a rounding bug left one yen in escrow, the balance
+Both end in `checkBooks`. If a rounding bug left one cent in escrow, the balance
 assertion catches it directly and `checkBooks (b)` catches it globally.
 
 ## Invariant 4: timer-vs-manual releases exactly once

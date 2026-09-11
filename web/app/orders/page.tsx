@@ -4,7 +4,7 @@ import StatusBadge from "@/components/StatusBadge";
 import ServiceUnavailable from "@/components/ServiceUnavailable";
 import Reveal from "@/components/motion/Reveal";
 import StaggerGrid from "@/components/motion/StaggerGrid";
-import { fetchOrders, yen, type Order } from "@/lib/api";
+import { fetchOrders, usd, type Order } from "@/lib/api";
 import { getToken } from "@/lib/auth";
 
 export default async function OrdersPage({
@@ -73,7 +73,7 @@ export default async function OrdersPage({
                   {new Date(o.created_at).toLocaleDateString()}
                 </p>
               </div>
-              <span className="money text-sm font-bold text-ink">{yen(o.price_minor)}</span>
+              <span className="money text-sm font-bold text-ink">{usd(o.price_minor)}</span>
               <StatusBadge status={o.status} />
             </Link>
           ))}

@@ -7,7 +7,7 @@ A compact C2C marketplace with three deliberately hard parts built from scratch:
 ## Architecture
 
 ```
-             Next.js storefront + IdP screens (:3000)
+             Next.js storefront + IdP screens (:3001)
                │ /idp/* rewrite (same-origin proxy)  │ server-side JSON
                ▼                                     ▼
    id (Go, :8081) ◄─JWKS── market (Go, :8082) ──X-Internal-Token──► pay (Go, :8083)
@@ -40,7 +40,7 @@ State changes and events are written in a single database transaction (the [tran
 | `market` (Go) | 8082 | Listings CRUD + FTS, order state machine (`pending_payment→funded→shipped→completed`, cancel/refund), 15-min reservations, auto-release timer, transactional outbox → Redpanda relay |
 | `pay` (Go) | 8083 | Double-entry ledger: idempotent escrow fund/release/refund (10% platform fee), demo deposits, wallet. Internal money endpoints are shared-token gated. Transactional outbox → Redpanda relay |
 | `assist` (Python) | 8084 | AI listing suggestions (Anthropic vision + structured outputs, heuristic fallback), price bands from comparable sold history, trust scoring via Kafka consumer + admin review queue |
-| `web` (Next.js) | 3000 | Storefront, checkout + escrow timeline, wallet, AI-assisted `/sell`, IdP screens incl. MFA, admin dashboard |
+| `web` (Next.js) | 3001 | Storefront, checkout + escrow timeline, wallet, AI-assisted `/sell`, IdP screens incl. MFA, admin dashboard |
 | `db` (Postgres 17) | 5432 | One database, schema per service |
 | `redpanda` | 9092 | Kafka-compatible event bus (market.events, pay.events topics) |
 
@@ -57,7 +57,7 @@ make up                          # docker compose up --build -d, runs the world
 docker compose run --rm seed     # demo users, categories, 12 listings (or: make seed with local Go)
 ```
 
-Open http://localhost:3000, register (or use `alice@vault.test` / `password123!`), approve the consent screen, and sell something. The sign-in you just did was a full OAuth 2.0 Authorization Code + PKCE round trip against the project's own identity provider.
+Open http://localhost:3001, register (or use `alice@vault.test` / `password123!`), approve the consent screen, and sell something. The sign-in you just did was a full OAuth 2.0 Authorization Code + PKCE round trip against the project's own identity provider.
 
 ## What the tests prove
 
@@ -86,7 +86,7 @@ Assist:
 - **Price bands are honest quartiles** with sane single-comparable behavior; **trust rules flag** new-account high-value listings and rapid listing bursts, and stay quiet for normal behavior.
 
 End-to-end (Playwright):
-- **The full happy path runs in a single Playwright test**: register → MFA enroll → TOTP step-up login → AI-assisted listing → escrow buy → ship → confirm receipt → wallet reconciles (bob −¥5,000, seller +¥4,500 after 10% fee).
+- **The full happy path runs in a single Playwright test**: register → MFA enroll → TOTP step-up login → AI-assisted listing → escrow buy → ship → confirm receipt → wallet reconciles (bob −$50, seller +$45 after 10% fee).
 
 ## Development
 
@@ -121,7 +121,7 @@ cd web && npx playwright test
 
 ## Design
 
-See [DESIGN.md](DESIGN.md) for the Slate design system: color palette, typography, spacing, components, light/dark theming, and motion.
+See [DESIGN.md](DESIGN.md) for the Nova design system: color palette, typography, spacing, components, and motion (light-only).
 
 ## Engineering write-ups
 

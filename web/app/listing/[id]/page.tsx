@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import Reveal from "@/components/motion/Reveal";
 import StatusBadge from "@/components/StatusBadge";
-import { fetchCategories, fetchListing, marketPost, yen } from "@/lib/api";
+import { fetchCategories, fetchListing, marketPost, usd } from "@/lib/api";
 import { getToken, getUser } from "@/lib/auth";
 
 async function buyNow(formData: FormData) {
@@ -52,7 +52,7 @@ export default async function ListingPage({
           {category ? <span className="text-xs text-faint">{category.name}</span> : null}
         </div>
         <h1 className="text-2xl font-bold tracking-tight text-ink">{listing.title}</h1>
-        <p className="money mt-2 text-3xl font-bold text-ink">{yen(listing.price_minor)}</p>
+        <p className="money mt-2 text-3xl font-bold text-ink">{usd(listing.price_minor)}</p>
         <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
           {listing.description || "No description."}
         </p>

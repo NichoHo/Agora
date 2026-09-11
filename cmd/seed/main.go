@@ -26,19 +26,19 @@ type item struct {
 	price                 int64
 }
 
-var items = []item{
-	{"Nikon FM2 film camera", "Fully mechanical SLR, recently serviced. Light seals replaced.", "electronics", "/seed/nikon_fm2_camera_1785689479003.jpg", 42000},
-	{"Uniqlo U crew neck tee (M, navy)", "Worn twice, no stains. Smoke-free home.", "fashion", "/seed/uniqlo_navy_tee_1785689493029.jpg", 900},
-	{"The Design of Everyday Things", "Don Norman. Paperback, light shelf wear.", "books", "/seed/design_everyday_things_1785689503937.jpg", 1200},
-	{"Balmuda kettle (white)", "Two years old, descaled monthly. Original box.", "home", "/seed/balmuda_kettle_1785689513116.jpg", 8500},
-	{"Gundam RX-78-2 MG kit (unbuilt)", "Sealed box, bought duplicate by mistake.", "hobby", "/seed/gundam_rx782_1785689521246.jpg", 4300},
-	{"Sony WH-1000XM4 headphones", "Earpads replaced with official parts last month.", "electronics", "/seed/sony_headphones_1785689531607.jpg", 19800},
-	{"Levi's 501 (W32 L32)", "Classic straight fit, honest fade.", "fashion", "/seed/levis_501_1785689551471.jpg", 5600},
-	{"Norwegian Wood by Murakami", "English paperback, good condition.", "books", "/seed/norwegian_wood_book_1785689562218.jpg", 800},
-	{"Muji oak desk lamp", "Warm LED, dimmer works perfectly.", "home", "/seed/muji_desk_lamp_1785689572434.jpg", 3200},
-	{"Shimano 105 rear derailleur", "Taken off an upgrade build, ~500km use.", "hobby", "/seed/shimano_derailleur_1785689607870.jpg", 6200},
-	{"iPad (9th gen, 64GB, WiFi)", "Screen protector since day one. Battery 89%.", "electronics", "/seed/ipad_9th_gen_1785689618999.jpg", 28000},
-	{"Vintage seiko 5 automatic", "Runs +10s/day. New strap.", "hobby", "/seed/seiko_5_watch_1785689647939.jpg", 15500},
+var items = []item{ // price is US cents
+	{"Vintage 35mm film SLR camera", "Fully mechanical, recently serviced. Light seals replaced.", "electronics", "/seed/film_slr_camera.jpg", 42000},
+	{"Navy crew neck tee (M)", "Worn twice, no stains. Smoke-free home.", "fashion", "/seed/navy_tee.jpg", 1200},
+	{"The Design of Everyday Things", "Don Norman. Paperback, light shelf wear.", "books", "/seed/design_everyday_things.jpg", 1200},
+	{"Gooseneck electric kettle (white)", "Two years old, descaled monthly. Original box.", "home", "/seed/gooseneck_kettle.jpg", 8500},
+	{"Wooden chess set (weighted pieces)", "Complete set, felt-bottomed. Board folds for storage.", "hobby", "/seed/chess_set.jpg", 4300},
+	{"Wireless noise-cancelling headphones", "Earpads replaced with official parts last month.", "electronics", "/seed/wireless_headphones.jpg", 19800},
+	{"Levi's 501 (W32 L32)", "Classic straight fit, honest fade.", "fashion", "/seed/levis_501.jpg", 5600},
+	{"Dune (paperback)", "Frank Herbert. English paperback, good condition.", "books", "/seed/dune_paperback.jpg", 800},
+	{"Oak desk lamp", "Warm LED, dimmer works perfectly.", "home", "/seed/oak_desk_lamp.jpg", 3200},
+	{"11-speed rear derailleur", "Taken off an upgrade build, ~500km use.", "hobby", "/seed/rear_derailleur.jpg", 6200},
+	{"iPad (9th gen, 64GB, WiFi)", "Screen protector since day one. Battery 89%.", "electronics", "/seed/ipad_9th_gen.jpg", 28000},
+	{"Vintage automatic watch", "Runs +10s/day. New strap.", "hobby", "/seed/automatic_watch.jpg", 15500},
 }
 
 func main() {

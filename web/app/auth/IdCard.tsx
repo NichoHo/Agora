@@ -16,8 +16,8 @@ export default function IdCard({
           VAULT ID
         </span>
       </div>
-      <div className="rounded-panel border border-line bg-surface p-6 shadow-sm">
-        <h1 className="mb-4 text-xl font-bold tracking-tight text-ink">{title}</h1>
+      <div className="rounded-panel border border-line bg-surface p-8 shadow-md">
+        <h1 className="mb-5 text-xl font-bold tracking-tight text-ink">{title}</h1>
         {children}
       </div>
     </Reveal>

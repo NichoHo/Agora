@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { yen, type Listing } from "@/lib/api";
+import { usd, type Listing } from "@/lib/api";
 
 export default function ListingCard({ listing }: { listing: Listing }) {
   return (
@@ -22,7 +22,7 @@ export default function ListingCard({ listing }: { listing: Listing }) {
         <p className="truncate text-sm leading-5 text-ink-2 transition-colors group-hover:text-ink">
           {listing.title}
         </p>
-        <p className="money mt-1.5 text-base font-semibold text-ink">{yen(listing.price_minor)}</p>
+        <p className="money mt-1.5 text-base font-semibold text-ink">{usd(listing.price_minor)}</p>
       </div>
     </Link>
   );

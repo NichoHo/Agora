@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import type { Category } from "@/lib/api";
+import { usd, type Category } from "@/lib/api";
 import { createListingAction, suggestAction, type Suggestion } from "./actions";
 
 type Fields = { title: string; description: string; category_id: string; price: string };
@@ -58,9 +58,10 @@ export default function SellForm({
       }
       setSuggestion(result);
       const cat = categories.find((c) => c.slug === result.category_slug);
+      // assist prices are cents; the field is dollars
       const mid =
         result.price_low != null && result.price_high != null
-          ? String(Math.round((result.price_low + result.price_high) / 2))
+          ? ((result.price_low + result.price_high) / 200).toFixed(2)
           : "";
       setFields({
         title: result.title,
@@ -159,14 +160,14 @@ export default function SellForm({
       />
       <div className="flex gap-3">
         <InputGroup className={`flex-1 ${ai("price")}`}>
-          <InputGroupAddon>¥</InputGroupAddon>
+          <InputGroupAddon>$</InputGroupAddon>
           <InputGroupInput
             name="price"
             type="number"
             required
-            min={1}
-            step={1}
-            placeholder="Price (yen)"
+            min={0.01}
+            step={0.01}
+            placeholder="Price (USD)"
             value={fields.price}
             onChange={(e) => setField("price", e.target.value)}
             className="money"
@@ -194,8 +195,7 @@ export default function SellForm({
       </div>
       {suggestion?.price_low != null && suggestion?.price_high != null ? (
         <p className="money text-xs text-faint">
-          Similar items sold for ¥{suggestion.price_low.toLocaleString("ja-JP")} to ¥
-          {suggestion.price_high.toLocaleString("ja-JP")}
+          Similar items sold for {usd(suggestion.price_low)} to {usd(suggestion.price_high)}
         </p>
       ) : null}
 

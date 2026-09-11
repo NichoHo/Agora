@@ -88,7 +88,7 @@ The legacy "Ishidatami" alias block (`--color-paper`, `--color-torii`, `--color-
 
 ### Typography
 
-Switch the Google Font from Inter/Noto Sans JP to **Plus Jakarta Sans** (variable), matching the reference. Keep Noto Sans JP as a silent fallback in the stack only for CJK glyph coverage, not as a visible design choice. Keep the existing mono stack (Geist Mono / JetBrains Mono) for the `money` utility — tabular figures for prices is a good detail already in place, don't touch it.
+Switch the Google Font from Inter to **Plus Jakarta Sans** (variable), matching the reference. Keep the existing mono stack (Geist Mono / JetBrains Mono) for the `money` utility — tabular figures for prices is a good detail already in place, don't touch it.
 
 Large display type (hero headline, page titles) should sit at regular/medium weight, not heavy bold — that restraint is a big part of why the reference reads as premium rather than default-template.
 

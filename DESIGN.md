@@ -1,110 +1,117 @@
-# Slate Enterprise (v3): Vault's Modern Enterprise Marketplace Design System
+# Nova (v4): Vault's Marketplace Design System
 
-*Slate Enterprise (v3)* expands Vault’s design language into a modern, enterprise-grade e-commerce and escrow platform. Drawing design principles from **Shopify Polaris**, **Stripe Connect / Treasury**, **Linear**, and **StockX Verified**, Slate Enterprise introduces a 4-tier surface elevation scale, multi-context security/financial semantics, dense data tables, micro-badge architecture, and high-trust glassmorphism.
+Nova replaces "Slate Enterprise (v3)" (indigo, light and dark mode). It ships a
+white canvas and one orange brand color, and it drops dark mode entirely. See
+[`docs/superpowers/plans/2026-08-19-ui-redesign-phase1-foundation.md`](docs/superpowers/plans/2026-08-19-ui-redesign-phase1-foundation.md)
+for the full rationale. Tokens live in [`web/app/globals.css`](web/app/globals.css)
+as Tailwind v4 `@theme` variables.
 
-The design tokens are defined in [`web/app/globals.css`](web/app/globals.css) using Tailwind v4 `@theme` variables, powering both light and dark themes with zero layout shift.
+## 1. Design philosophy
 
----
+- **One accent, used sparingly.** Orange (`#fe5922`) marks the brand and
+  primary actions. It does not fill the page.
+- **Light-only by decision.** The team removed dark mode on purpose: the
+  `ThemeToggle` component, the `data-theme` attribute, and the pre-paint theme
+  script are all gone. This is not a dropped maintenance task, it's a choice.
+- **Density matches the job.** Storefront pages stay airy. Admin, orders, and
+  wallet tables read denser, closer to back-office software.
+- **AI suggestions stay visible.** On `/sell`, a field the assistant filled
+  keeps an orange left border until the user edits it. The "Suggest" button
+  uses a separate violet `copilot` color, so an AI action never looks like a
+  brand action.
 
-## 1. Design Philosophy & Pillars
+## 2. Color tokens
 
-1. **Uncompromising Financial Trust**: Escrow transactions, ledger states, and MFA identity verifications are highlighted using dedicated semantic hues. Money and quantitative metrics use tabular numbers (`font-variant-numeric: tabular-nums`).
-2. **Multi-Tier Surface Elevation**: Depth is conveyed through subtle surface tinting (`canvas` -> `surface-0` -> `surface-1` -> `surface-2` -> `overlay`) and 1px hairline borders (`line` / `line-strong`) combined with ambient glows (`shadow-glow`).
-3. **AI Co-Creation Transparency**: AI suggestions on `/sell` use a distinct Violet tint (`--color-copilot: #8B5CF6`) and 4px left border indicator ("AI Proposed, Human Approved") to maintain clear provenance.
-4. **Data Density & Readability**: Compact controls (8px/10px radii), high contrast (>= 4.5:1 WCAG AA), and clear micro-status badges ensure high efficiency for heavy marketplace power users.
+All values below are current, read directly from `web/app/globals.css`.
 
----
+| Token | Value | Role |
+|---|---|---|
+| `canvas` | `#FFFFFF` | Page background |
+| `surface` | `#FFFFFF` | Cards, panels |
+| `surface-2` | `#F7F7F5` | Soft section backgrounds |
+| `surface-3` | `#EFEEEA` | Hover and raised rows |
+| `ink` | `#171412` | Primary text |
+| `ink-2` | `#46423D` | Secondary text |
+| `muted-foreground` | `#78736C` | Captions, metadata |
+| `faint` | `#A8A29A` | Placeholders, disabled text |
+| `line` | `#E8E6E1` | Hairline borders |
+| `line-strong` | `#D6D2CA` | Stronger dividers, focus outlines |
+| `fill` | `#F4F3EF` | Chip and code backgrounds |
+| `primary` | `#FE5922` | Brand color, primary buttons, links |
+| `primary-strong` | `#D8430F` | Hover and pressed states |
+| `primary-tint` | `#FEF3EC` | Tinted surfaces behind the brand color |
+| `success` / `success-tint` | `#16A34A` / `#EFFBF3` | Paid, confirmed states |
+| `warning` / `warning-tint` | `#CA8A04` / `#FFFBEB` | Pending states |
+| `danger` / `danger-tint` | `#DC2626` / `#FEF2F2` | Errors, destructive actions |
+| `copilot` / `copilot-tint` | `#7C3AED` / `#F5F3FF` | AI-assistant actions and fields |
 
-## 2. Color Palette & Token Scale
+**A naming note.** The brand color is `--color-primary`, not `--color-accent`.
+shadcn/ui's own components hardcode `bg-accent` and `bg-muted` as neutral
+hover and background colors, names that once meant something different in
+this file. Renaming the brand token to `primary` and the secondary-text token
+to `muted-foreground` freed `accent` and `muted` for shadcn's own use. A
+hovered menu item now shows a neutral highlight, not a flash of orange.
 
-Both light and dark themes ship out of the box with strict contrast parity.
+## 3. Typography
 
-### Primary Surface Scale
+- **Plus Jakarta Sans** carries every UI role: headings, body text, buttons.
+- **Geist Mono**, with JetBrains Mono as a fallback, renders money and other
+  tabular data. The `money` utility class sets `tabular-nums` and tight
+  tracking so prices line up in columns.
+- Large display type, such as the homepage hero and page titles, stays at a
+  regular or medium weight. Avoid heavy bold at large sizes: that restraint is
+  a large part of why the page reads as premium rather than templated.
 
-| Token | Light | Dark | Enterprise Role |
-| --- | --- | --- | --- |
-| `canvas` | `#F8FAFC` | `#090D16` | App background, deep workspace canvas |
-| `surface` | `#FFFFFF` | `#111726` | Primary card surfaces, main content panels |
-| `surface-2` | `#F1F5F9` | `#182032` | Elevated rows, active sidebars, hover surfaces |
-| `surface-3` | `#E2E8F0` | `#202B42` | Raised control fills, popovers, sub-cards |
-| `overlay` | `#FFFFFF/90` | `#111726/85` | Frosted glass headers, flyout drawers, modals |
+## 4. Shape and elevation
 
-### Typography & Ink Ramp
+- Radii: `10px` for controls (buttons, inputs), `18px` for cards, `24px` for
+  large panels like the hero.
+- Three shadow steps (`sm`, `md`, `lg`), tinted warm to match the ink color,
+  plus a `shadow-glow` utility: a soft orange halo for active or
+  trust-related elements.
+- Depth comes from shadow and whitespace first. Reach for a hairline border
+  (`border-line`) only where structure calls for one, such as a table row.
+- `glass`: a 72% translucent surface with a 14px blur, for sticky headers and
+  floating chrome.
+- `wash-accent`: a soft orange-and-green radial gradient, for hero and
+  feature backgrounds.
 
-| Token | Light | Dark | Accessibility & Usage |
-| --- | --- | --- | --- |
-| `ink` | `#0F172A` | `#F1F5F9` | Primary headings, table row values (15:1 AA) |
-| `ink-2` | `#334155` | `#CBD5E1` | Body copy, secondary titles |
-| `muted` | `#64748B` | `#94A3B8` | Metadata, captions, table headers |
-| `faint` | `#94A3B8` | `#64748B` | Disabled text, input placeholders |
+## 5. Component foundation
 
-### Borders & Fills
+- The UI runs on shadcn/ui, built on `@base-ui/react` rather than Radix.
+  `web/components.json` names the style `base-nova`, the base color
+  `neutral`, and the icon set `lucide-react`.
+- Six primitives ship today, in `web/components/ui/`: Button, Input, Textarea,
+  Select, Card, and InputGroup. The rollout runs page by page. A few raw
+  `<button>` elements remain (admin's approve and reject actions, the listing
+  buy button, the login screen's recovery-code link). Check the actual page
+  before claiming the shadcn migration is complete.
+- `Button` carries a `copilot` variant (violet) for AI-assist actions, such as
+  the `/sell` page's "Suggest" trigger. Keep it separate from the default
+  brand-colored button.
+- Framer Motion drives the motion layer: scroll-triggered reveals, staggered
+  listing grids, a hover lift on cards, a sliding `layoutId` indicator on tabs
+  and chips, a slight tap-scale on primary buttons, and a skeleton-to-content
+  crossfade. All of it respects `prefers-reduced-motion`, through both the CSS
+  block in `globals.css` and Framer Motion's `useReducedMotion()` hook.
 
-| Token | Light | Dark | Visual Function |
-| --- | --- | --- | --- |
-| `line` | `#E2E8F0` | `#1E293B` | Hairline card outlines, subtle dividers |
-| `line-strong` | `#CBD5E1` | `#334155` | Focus rings, active tab borders, hover lines |
-| `fill` | `#F1F5F9` | `#1E293B` | Table header fills, code blocks, chip backings |
+## 6. Accessibility
 
-### Semantic Financial & Trust Hues
+- The focus ring is `2px solid var(--color-primary)`, marked `!important` in
+  `globals.css`. Tailwind v4's own `outline-none` utility ties with it on
+  specificity and would otherwise win on source order.
+- Contrast was rechecked after the palette moved to orange. Solid buttons use
+  `primary-strong` for their fill, so button text clears WCAG AA; `primary`
+  itself stays on larger elements like icons, borders, and tints.
+- `prefers-reduced-motion` is honored at both the CSS layer and the component
+  layer.
 
-| Token | Light | Dark | Role in Enterprise Marketplace |
-| --- | --- | --- | --- |
-| `accent` | `#6366F1` | `#818CF8` | Primary CTA, active navigation, links, focus rings |
-| `accent-strong` | `#4F46E5` | `#A5B4FC` | Hover/Active button states, key indicators |
-| `accent-tint` | `#EEF2FF` | `#1E1B4B` | Accent surface fills, selected table rows |
-| `escrow` / `success` | `#10B981` | `#34D399` | Funds held/released, verified sellers, positive balance |
-| `escrow-tint` | `#ECFDF5` | `#064E3B` | Escrow active banners, positive money pills |
-| `warning` | `#F59E0B` | `#FBBF24` | Pending inspection, reserve hold, warning badges |
-| `warning-tint` | `#FFFBEB` | `#451A03` | Pending state banners, payout holds |
-| `danger` | `#EF4444` | `#F87171` | Dispute opened, payment error, high risk score |
-| `danger-tint` | `#FEF2F2` | `#450A0A` | Error banners, cancelled orders, revoke actions |
-| `copilot` | `#8B5CF6` | `#A78BFA` | AI assistant suggestions, automated pricing bands |
-| `copilot-tint` | `#F5F3FF` | `#2E1065` | AI proposal field backgrounds |
-| `on-solid` | `#FFFFFF` | `#090D16` | Contrast-safe text on solid filled buttons |
+## Lineage
 
----
-
-## 3. Typography & Grid Layout
-
-- **Font Family**: `Inter Display` for headings, `Inter` for interface elements, `Geist Mono` / `JetBrains Mono` for hashes, audit logs, and API tokens.
-- **Type Scale (px)**: `11` (micro captions/badges) · `13` (table cell data) · `14` (body/input) · `16` (subheadings) · `20` (card title) · `24` (page title) · `36` (hero headline).
-- **Tabular Money Rule**: All currency displays MUST use `@utility money` (`tabular-nums` + `-0.01em` tracking) so financial numbers align pixel-perfectly in enterprise data columns.
-- **Container Grid**: `max-w-7xl` centered container, `12-column` fluid grid, responsive sidebars (280px fixed filter/navigation panel).
-
----
-
-## 4. Radii, Elevation & Ambient Shadows
-
-- **Border Radius**:
-  - `rounded-control` (8px): Inputs, selects, compact table buttons.
-  - `rounded-card` (12px): Standard marketplace cards, widget panels.
-  - `rounded-panel` (16px): Large modal dialogs, flyout drawers, hero containers.
-  - `rounded-full`: Status pills, verification tags, user avatars.
-- **Layered Elevation**:
-  - `shadow-sm`: Rest state for input fields and subtle raised cards.
-  - `shadow-md`: Hover state for listing items (-2px vertical lift).
-  - `shadow-glow`: Subtle ambient indigo/emerald halo around active trust components (`0 0 20px -5px rgba(99, 102, 241, 0.25)`).
-
----
-
-## 5. Enterprise Component Patterns
-
-1. **Verified Listing Card**:
-   - 12px rounded surface, hairline border (`border-line`), shadow hover lift.
-   - Top-right verified seller badge with escrow shield icon.
-   - Price tag in `money` tabular font with inline currency code (`USD`).
-2. **Escrow Lifecycle Timeline (`OrderTimeline`)**:
-   - 4-step horizontal/vertical progress tracker: `Funded` -> `Item Shipped` -> `Under Inspection` -> `Escrow Released`.
-   - Active step features pulsing emerald ring + transaction ledger audit ID link.
-3. **AI Copilot Listing Field (`/sell`)**:
-   - AI prefilled inputs feature a 4px left violet border (`border-copilot`) and a subtle "AI Proposed" chip until modified by human user.
-4. **Identity & MFA Security Panel**:
-   - Status indicators with green checkmarks for TOTP MFA, active OAuth 2.0 PKCE session tokens, and tamper-evident audit logs.
-
----
-
-## 6. Motion & Accessibility
-
-- **Micro-Transitions**: 150ms `cubic-bezier(0.16, 1, 0.3, 1)` for hover, focus, and button press states.
-- **Accessibility Guarantee**: Full WCAG AA compliance (4.5:1 contrast for all text), explicit focus ring outline (`2px solid var(--color-accent)`), and full `prefers-reduced-motion` fallbacks.
+Ishidatami (the original palette) gave way to Slate, then Slate Enterprise v2
+and v3 (indigo, light and dark mode via a `ThemeToggle`). Nova v4 is current:
+orange, light-only. The old Ishidatami alias block is gone from
+`globals.css`; no page still resolves `torii`, `moss`, `kohaku`, or `sumi`
+token names. [`web/UI_REDESIGN_PROMPT.md`](web/UI_REDESIGN_PROMPT.md) is the
+brief that produced Nova. This file is the settled reference: when the two
+disagree, trust this file and the code, and update the brief.

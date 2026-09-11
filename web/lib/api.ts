@@ -15,8 +15,11 @@ export type Listing = {
 
 export type Category = { id: number; name: string; slug: string };
 
-export function yen(priceMinor: number): string {
-  return "¥" + priceMinor.toLocaleString("ja-JP");
+const usdFormat = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+
+// minor units are cents; negatives render as "-$12.34"
+export function usd(amountMinor: number): string {
+  return usdFormat.format(amountMinor / 100);
 }
 
 export async function fetchListings(params: {

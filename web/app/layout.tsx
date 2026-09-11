@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Noto_Sans_JP } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import Link from "next/link";
 import BackLink from "@/components/BackLink";
 import StickyHeader from "@/components/motion/StickyHeader";
@@ -10,7 +10,6 @@ import { ADMIN_EMAILS } from "@/lib/env";
 import "./globals.css";
 
 const plusJakarta = Plus_Jakarta_Sans({ variable: "--font-plus-jakarta", subsets: ["latin"] });
-const noto = Noto_Sans_JP({ variable: "--font-noto", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Vault",
@@ -87,7 +86,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${plusJakarta.variable} ${noto.variable} h-full antialiased`}>
+    <html lang="en" className={`${plusJakarta.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-canvas font-sans">
         <a
           href="#main"

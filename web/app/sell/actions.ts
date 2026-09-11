@@ -47,7 +47,7 @@ export async function createListingAction(formData: FormData) {
     body: JSON.stringify({
       title: String(formData.get("title") ?? ""),
       description: String(formData.get("description") ?? ""),
-      price_minor: Math.round(price),
+      price_minor: Math.round(price * 100), // dollars → cents
       category_id: categoryId > 0 ? categoryId : null,
       image_url: String(formData.get("image_url") ?? ""),
     }),

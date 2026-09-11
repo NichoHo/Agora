@@ -24,7 +24,7 @@ def score_listing_created(payload: dict, seller_created_at: datetime | None,
     price = int(payload.get("price_minor", 0))
     if price >= HIGH_VALUE and seller_created_at is not None and now - seller_created_at < NEW_ACCOUNT:
         score += 0.8
-        reasons.append(f"account younger than 1h listing ¥{price:,}")
+        reasons.append(f"account younger than 1h listing ${price / 100:,.2f}")
     if recent_listing_count >= RAPID_COUNT:
         score += 0.6
         reasons.append(f"{recent_listing_count} listings in 10 minutes")

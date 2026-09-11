@@ -4,7 +4,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import OrderTimeline from "@/components/OrderTimeline";
 import StatusBadge from "@/components/StatusBadge";
 import Reveal from "@/components/motion/Reveal";
-import { fetchOrder, marketPost, yen } from "@/lib/api";
+import { fetchOrder, marketPost, usd } from "@/lib/api";
 import { getToken, getUser } from "@/lib/auth";
 
 async function runOrderAction(formData: FormData) {
@@ -66,7 +66,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
         />
         <div className="min-w-0">
           <p className="truncate text-sm font-medium text-ink">{order.listing_title}</p>
-          <p className="money text-lg font-bold text-ink">{yen(order.price_minor)}</p>
+          <p className="money text-lg font-bold text-ink">{usd(order.price_minor)}</p>
           <p className="text-xs text-faint">You are the {isBuyer ? "buyer" : "seller"}</p>
         </div>
       </Link>

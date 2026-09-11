@@ -46,7 +46,7 @@
   --color-copilot-foreground: var(--color-on-solid);
 
   /* ---- Type ------------------------------------------------------------------ */
-  --font-sans: var(--font-plus-jakarta), var(--font-noto), system-ui, sans-serif;
+  --font-sans: var(--font-plus-jakarta), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), var(--font-jetbrains), monospace;
 
   /* ---- Radii ------------------------------------------------------------------ */

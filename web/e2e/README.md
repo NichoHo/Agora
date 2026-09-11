@@ -15,7 +15,7 @@ npm run e2e
 ```
 
 The seller is a fresh random account each run (`seller-<ts>@vault.test`); the
-buyer is seeded `bob@vault.test` (¥100,000, MFA off). `e2e/totp.ts` mirrors
+buyer is seeded `bob@vault.test` ($1,000, MFA off). `e2e/totp.ts` mirrors
 `internal/id/totp.go` so the test computes the same TOTP code the IdP expects
 for the MFA step.
 

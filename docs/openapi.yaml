@@ -7,7 +7,7 @@ info:
     orders), pay (escrow ledger + wallet), and assist (AI suggestions + trust).
     In the running stack the browser reaches id through a same-origin `/idp/*`
     proxy; the other services are called server-side by the Next.js app. Money is
-    int64 minor units (JPY). Bearer tokens are RS256 access tokens issued by id
+    int64 minor units (USD cents). Bearer tokens are RS256 access tokens issued by id
     and verified against its JWKS.
   license:
     name: MIT
@@ -47,7 +47,7 @@ components:
         title: { type: string }
         description: { type: string }
         price_minor: { type: integer, format: int64 }
-        currency: { type: string, example: JPY }
+        currency: { type: string, example: USD }
         status: { type: string, enum: [draft, active, reserved, sold, withdrawn] }
         image_url: { type: string }
         created_at: { type: string, format: date-time }
@@ -359,7 +359,7 @@ paths:
   /deposits:
     post:
       servers: [{ url: "http://localhost:8083" }]
-      summary: Add demo funds (self only, ≤ ¥100,000, idempotent)
+      summary: Add demo funds (self only, ≤ $1,000, idempotent)
       security: [{ bearerAuth: [] }]
       requestBody:
         required: true

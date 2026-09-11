@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Reveal from "@/components/motion/Reveal";
-import { fetchOrder, fetchWallet, marketPost, payDeposit, yen } from "@/lib/api";
+import { fetchOrder, fetchWallet, marketPost, payDeposit, usd } from "@/lib/api";
 import { getToken } from "@/lib/auth";
 
 async function payAction(formData: FormData) {
@@ -66,18 +66,18 @@ export default async function CheckoutPage({
           />
           <div className="min-w-0">
             <p className="truncate text-sm font-medium text-ink">{order.listing_title}</p>
-            <p className="money text-lg font-bold text-ink">{yen(order.price_minor)}</p>
+            <p className="money text-lg font-bold text-ink">{usd(order.price_minor)}</p>
           </div>
         </CardContent>
         <CardContent className="text-sm">
           <dl className="flex flex-col gap-1 border-t border-line pt-4">
             <div className="flex justify-between">
               <dt className="text-muted-foreground">Your wallet</dt>
-              <dd className={`money ${short ? "text-danger" : "text-ink"}`}>{yen(balance)}</dd>
+              <dd className={`money ${short ? "text-danger" : "text-ink"}`}>{usd(balance)}</dd>
             </div>
             <div className="flex justify-between">
               <dt className="text-muted-foreground">Held in escrow until you confirm receipt</dt>
-              <dd className="money text-ink">{yen(order.price_minor)}</dd>
+              <dd className="money text-ink">{usd(order.price_minor)}</dd>
             </div>
           </dl>
         </CardContent>
@@ -89,7 +89,7 @@ export default async function CheckoutPage({
           <form action={topUpAction} className="mt-2">
             <input type="hidden" name="order_id" value={order.id} />
             <Button type="submit" size="sm">
-              Add ¥50,000 demo funds
+              Add $500 demo funds
             </Button>
           </form>
         </div>
@@ -103,7 +103,7 @@ export default async function CheckoutPage({
       <form action={payAction} className="mt-4">
         <input type="hidden" name="order_id" value={order.id} />
         <Button type="submit" disabled={short} className="w-full">
-          Pay {yen(order.price_minor)}
+          Pay {usd(order.price_minor)}
         </Button>
       </form>
       <form action={cancelAction} className="mt-2">
