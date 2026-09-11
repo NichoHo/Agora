@@ -89,7 +89,21 @@ a phone number/ID. Pick a home region close to you — Always Free compute can
 only be provisioned in the home region chosen at signup, it cannot be changed
 later.
 
-### 2. Create the compute instance
+### 2. Create the VCN first, separately from the instance
+
+Do not use the instance wizard's inline "Create new virtual cloud network"
+option — it's known to create a subnet that the "Automatically assign public
+IPv4 address" toggle then refuses with *"You must select a public subnet to
+assign a public IPv4 address"*, even though the subnet is labeled public.
+Side-step it entirely:
+
+Console -> hamburger menu -> Networking -> Virtual Cloud Networks ->
+**Start VCN Wizard** -> **Create VCN with Internet Connectivity** -> Next,
+using the default name/CIDR. This one-shot wizard wires up a real public
+subnet with an Internet Gateway and route table already attached, so the
+public-IP toggle works when the instance references it.
+
+### 3. Create the compute instance
 
 Console -> hamburger menu -> Compute -> Instances -> **Create Instance**.
 
@@ -101,10 +115,13 @@ Console -> hamburger menu -> Compute -> Instances -> **Create Instance**.
   **2 OCPUs / 12 GB memory**. The Console shows "Always Free eligible" next
   to the shape when the sliders are within budget — confirm that badge is
   present before continuing.
-- **Networking:** let it create a new VCN (default settings are fine), keep
-  "Assign a public IPv4 address" checked.
-- **Add SSH keys:** upload a public key (`~/.ssh/id_ed25519.pub` or
-  generate one with `ssh-keygen`) — needed to log in later.
+- **Networking:** choose **"Select existing virtual cloud network"**, pick
+  the VCN created in step 2, then its public subnet. Turn on "Automatically
+  assign public IPv4 address" — it should switch on cleanly now.
+- **Add SSH keys:** either "Generate a key pair for me" (Oracle shows a
+  one-time download prompt for the private key right after — save it, it
+  can't be retrieved again) or upload/paste a public key you already have
+  (`~/.ssh/id_ed25519.pub`).
 - **Boot volume:** leave at the 50 GB default.
 - **Advanced options -> Management -> Cloud-init script:** paste the full
   contents of [`cloud-init.sh`](cloud-init.sh) from this directory.
@@ -113,7 +130,11 @@ Click **Create**. If it fails with "Out of host capacity," see the gotcha
 above and retry (change the Availability Domain shown in the shape config
 before retrying).
 
-### 3. Open the cloud-level firewall (Security List)
+Also confirm the region selector (top of Console) is your **home region**
+from step 1 before clicking Create — Always Free compute only provisions
+there, in any other region it isn't free.
+
+### 4. Open the cloud-level firewall (Security List)
 
 The instance's own iptables is opened by `cloud-init.sh`, but OCI has a
 second firewall in front of it. Console -> Networking -> Virtual Cloud
@@ -129,7 +150,7 @@ Only 22 and 3001 are opened — `id`/`market`/`pay`/`assist` (8081-8084) and
 Postgres/Redpanda (5432/9092) stay unreachable from the internet, same as the
 AWS deploy.
 
-### 4. Point the app at its public IP, then start it
+### 5. Point the app at its public IP, then start it
 
 `docker-compose.yml`'s `WEB_URL` (on `id`) and `WEB_ORIGIN` (on `web`) read
 from a `${PUBLIC_HOST:-localhost}` variable — they're sent to the *browser*
@@ -153,11 +174,11 @@ First run builds 5 images from source (Go x4, Python, Next.js) — several
 minutes on a fresh instance. `docker compose ps` should show every service
 healthy/running when done.
 
-### 5. Verify
+### 6. Verify
 
 Open `http://<public-ip>:3001` in a browser. Confirm login/signup works end
 to end (this exercises the `id` service's OIDC redirect through `WEB_URL`,
-the part that breaks if step 4 was skipped).
+the part that breaks if step 5 was skipped).
 
 ## Teardown
 
