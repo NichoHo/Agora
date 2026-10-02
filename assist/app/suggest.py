@@ -8,7 +8,7 @@ import json
 import os
 import statistics
 
-VLM_MODEL = "claude-opus-4-8"
+VLM_MODEL = "claude-sonnet-5-5"
 
 # ponytail: round numbers, adjustable. Counts successful VLM calls stored today
 # (model = VLM_MODEL), not failed attempts -- we don't log those separately and
@@ -156,14 +156,19 @@ def vlm_suggestion(conn, user_id: str, image_url: str, title_hint: str) -> dict 
             content.append({"type": "text", "text": "Draft a listing for the item in the photo."})
         resp = client.messages.create(
             model=VLM_MODEL,
-            max_tokens=1024,
+            max_tokens=4096,  # headroom: thinking tokens count toward this
             system=VLM_SYSTEM_PROMPT,
-            output_config={"format": {"type": "json_schema", "schema": SUGGESTION_SCHEMA}},
+            output_config={
+                "effort": "low",
+                "format": {"type": "json_schema", "schema": SUGGESTION_SCHEMA},
+            },
             messages=[{"role": "user", "content": content}],
         )
-        if resp.stop_reason == "refusal" or not resp.content:
+        # thinking blocks may precede the answer; take the text block
+        text = next((b.text for b in resp.content if b.type == "text"), None)
+        if resp.stop_reason == "refusal" or text is None:
             return None
-        data = json.loads(resp.content[0].text)
+        data = json.loads(text)
         if not validate_suggestion(data):
             return None
         data["model"] = VLM_MODEL

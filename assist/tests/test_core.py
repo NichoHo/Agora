@@ -104,3 +104,23 @@ def test_order_rules():
     assert score_order_created(NOW - timedelta(minutes=30), NOW)[0] == 0.5
     assert score_order_created(NOW - timedelta(days=2), NOW)[0] == 0.0
     assert score_order_created(None, NOW)[0] == 0.0
+
+
+def test_vlm_suggestion_skips_thinking_block(monkeypatch):
+    """Sonnet 5.5 thinks by default: the JSON is not always content[0]."""
+    import json
+    from types import SimpleNamespace as NS
+    from unittest import mock
+
+    import app.suggest as s
+
+    good = {"title": "Kindle", "description": "An e-reader.",
+            "category_slug": "electronics", "search_terms": "kindle paperwhite"}
+    resp = NS(stop_reason="end_turn", content=[
+        NS(type="thinking", thinking=""), NS(type="text", text=json.dumps(good))])
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test")
+    monkeypatch.setattr(s, "_daily_cap_hit", lambda conn, user_id: False)
+    with mock.patch("anthropic.Anthropic") as client:
+        client.return_value.messages.create.return_value = resp
+        out = s.vlm_suggestion(None, "u", "http://img", "hint")
+    assert out is not None and out["title"] == "Kindle"

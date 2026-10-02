@@ -92,7 +92,7 @@ components:
         category_slug: { type: string }
         price_low: { type: [integer, "null"], format: int64 }
         price_high: { type: [integer, "null"], format: int64 }
-        model: { type: string, description: "claude-opus-4-8 or 'heuristic'" }
+        model: { type: string, description: "claude-sonnet-5-5 or 'heuristic'" }
     RiskScore:
       type: object
       properties:
