@@ -19,7 +19,7 @@ import (
 
 var (
 	ErrListingUnavailable = errors.New("listing unavailable")
-	ErrPaymentFailed       = errors.New("payment failed")
+	ErrPaymentFailed      = errors.New("payment failed")
 )
 
 type MarketClient struct {

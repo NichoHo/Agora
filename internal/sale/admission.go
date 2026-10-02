@@ -21,7 +21,7 @@ import (
 // pass doesn't have; add when a drop actually gets scalped.
 const (
 	velocityWindow = time.Minute
-	velocityLimit  = 20 // reservation attempts per user+IP per window before shadow-queueing
+	velocityLimit  = 20  // reservation attempts per user+IP per window before shadow-queueing
 	admissionBatch = 2.0 // overshoot factor: admit remaining*admissionBatch per tick
 )
 
@@ -63,8 +63,8 @@ func (s *Server) handleJoinQueue(w http.ResponseWriter, r *http.Request) {
 }
 
 type queueStatus struct {
-	Admitted bool  `json:"admitted"`
-	Position int64 `json:"position,omitempty"`
+	Admitted bool   `json:"admitted"`
+	Position int64  `json:"position,omitempty"`
 	Token    string `json:"token,omitempty"`
 }
 

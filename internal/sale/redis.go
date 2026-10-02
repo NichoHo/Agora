@@ -37,7 +37,7 @@ func NewRedis(addr string) *Redis {
 	return &Redis{rdb: redis.NewClient(&redis.Options{Addr: addr})}
 }
 
-func (r *Redis) Close() error         { return r.rdb.Close() }
+func (r *Redis) Close() error                   { return r.rdb.Close() }
 func (r *Redis) Ping(ctx context.Context) error { return r.rdb.Ping(ctx).Err() }
 
 func shardKey(dropID string, shard int) string {
