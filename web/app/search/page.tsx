@@ -47,7 +47,17 @@ export default async function SearchPage({
         {items.length === 0 ? (
           <p className="text-muted-foreground">No listings match. Try another search.</p>
         ) : (
-          <StaggerGrid className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4">
+          // Framer Motion's whileInView + `once: true` (see StaggerGrid) only ever
+          // fires once per component instance. Clicking a category tab is a
+          // client-side navigation on the same route, so React reuses this same
+          // instance instead of remounting it -- the new items would mount
+          // already "seen" and sit stuck at opacity: 0 forever. A key tied to the
+          // query forces a real remount (a fresh IntersectionObserver) whenever
+          // the result set actually changes.
+          <StaggerGrid
+            key={`${sp.q ?? ""}:${sp.category ?? ""}`}
+            className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4"
+          >
             {items.map((l) => (
               <ListingCard key={l.id} listing={l} />
             ))}

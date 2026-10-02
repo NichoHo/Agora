@@ -1,7 +1,7 @@
 fastapi==0.115.*
 uvicorn[standard]==0.32.*
 psycopg[binary,pool]==3.2.*
-PyJWT[crypto]==2.10.*
+PyJWT[crypto]==2.13.*
 kafka-python==3.0.*
 scikit-learn==1.5.*
 joblib==1.4.*
@@ -10,3 +10,7 @@ opentelemetry-sdk==1.27.*
 opentelemetry-exporter-otlp-proto-http==1.27.*
 opentelemetry-instrumentation-fastapi==0.48b0
 setuptools<81 # opentelemetry-instrumentation still imports pkg_resources, removed entirely in setuptools 81
+
+# Same starlette/protobuf pip-audit findings as assist/requirements.txt, same
+# reason (fastapi/opentelemetry bump required, resolver-blocked at these
+# pins) — see that file's comment and ci.yml's --ignore-vuln list.

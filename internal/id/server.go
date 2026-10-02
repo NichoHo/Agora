@@ -61,6 +61,8 @@ func NewServer(pool *pgxpool.Pool, signer *Signer, issuer, webURL, totpKeyPassph
 	mux.HandleFunc("GET /.well-known/openid-configuration", s.handleDiscovery)
 	mux.HandleFunc("GET /.well-known/jwks.json", s.handleJWKS)
 	mux.HandleFunc("POST /password", ratelimit.New(2, 10).Wrap(s.handleChangePassword))
+	mux.HandleFunc("POST /password/forgot", ratelimit.New(2, 10).Wrap(s.handleForgotPassword))
+	mux.HandleFunc("POST /password/reset", ratelimit.New(2, 10).Wrap(s.handleResetPassword))
 	mux.HandleFunc("POST /deactivate", s.handleDeactivate)
 	s.mfaRoutes(mux)
 	return mux

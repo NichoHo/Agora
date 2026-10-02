@@ -93,7 +93,7 @@ func testEnv(t *testing.T) *env {
 	}))
 	t.Cleanup(jwksSrv.Close)
 
-	srv := NewServer(pool, authn.New(jwksSrv.URL, testIssuer), nil)
+	srv := NewServer(pool, authn.New(jwksSrv.URL, testIssuer, pool), nil, nil)
 	ts := httptest.NewServer(srv)
 	t.Cleanup(ts.Close)
 	return &env{ts: ts, signer: signer, srv: srv, jwksURL: jwksSrv.URL}

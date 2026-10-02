@@ -18,16 +18,20 @@ import (
 )
 
 type Server struct {
-	pool *pgxpool.Pool
-	auth *authn.Verifier
-	pay  *PayClient
-	mux  *http.ServeMux
+	pool   *pgxpool.Pool
+	auth   *authn.Verifier
+	pay    *PayClient
+	images *ImageStore
+	mux    *http.ServeMux
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) { s.mux.ServeHTTP(w, r) }
 
-func NewServer(pool *pgxpool.Pool, auth *authn.Verifier, pay *PayClient) *Server {
-	s := &Server{pool: pool, auth: auth, pay: pay}
+// images may be nil (upload disabled, e.g. MinIO not configured); every
+// other listing flow works unchanged since image_url has always accepted
+// any URL, uploaded or pasted.
+func NewServer(pool *pgxpool.Pool, auth *authn.Verifier, pay *PayClient, images *ImageStore) *Server {
+	s := &Server{pool: pool, auth: auth, pay: pay, images: images}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
 		httpx.JSON(w, 200, map[string]bool{"ok": true})
@@ -38,6 +42,8 @@ func NewServer(pool *pgxpool.Pool, auth *authn.Verifier, pay *PayClient) *Server
 	mux.HandleFunc("POST /listings", s.auth.Require(s.handleCreate))
 	mux.HandleFunc("PATCH /listings/{id}", s.auth.Require(s.handlePatch))
 	mux.HandleFunc("GET /mine", s.auth.Require(s.handleMine))
+	mux.HandleFunc("POST /uploads", s.auth.Require(s.handleUploadImage))
+	mux.HandleFunc("GET /images/{key...}", s.handleGetImage)
 	s.orderRoutes(mux)
 	s.mux = mux
 	return s

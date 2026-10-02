@@ -34,6 +34,32 @@ export async function suggestAction(
   }
 }
 
+export async function uploadImageAction(
+  formData: FormData,
+): Promise<{ image_url: string } | { error: string }> {
+  const token = await getToken();
+  if (!token) return { error: "signed_out" };
+  const file = formData.get("image");
+  if (!(file instanceof File) || file.size === 0) return { error: "no_file" };
+  const upload = new FormData();
+  upload.set("image", file);
+  try {
+    const resp = await fetch(`${MARKET_URL}/uploads`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: upload,
+      cache: "no-store",
+    });
+    if (!resp.ok) return { error: `market_${resp.status}` };
+    const { image_url } = (await resp.json()) as { image_url: string };
+    // market's path proxied same-origin through web (next.config.ts), so
+    // the browser's <img> tag never talks to market or MinIO directly.
+    return { image_url: `/blobs${image_url}` };
+  } catch {
+    return { error: "market_unreachable" };
+  }
+}
+
 export async function createListingAction(formData: FormData) {
   // server actions are API routes: re-authenticate here, not just in the page
   const token = await getToken();

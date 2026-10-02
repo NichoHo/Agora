@@ -8,6 +8,7 @@ import (
 
 	"agora/internal/authn"
 	"agora/internal/httpx"
+	"agora/internal/ratelimit"
 )
 
 type Server struct {
@@ -33,7 +34,18 @@ func NewServer(pool *pgxpool.Pool, auth *authn.Verifier, rdb *Redis, market *Mar
 	mux.HandleFunc("GET /drops/{id}", s.handleGetDrop)
 	mux.HandleFunc("POST /drops/{id}/queue/join", s.auth.Require(s.handleJoinQueue))
 	mux.HandleFunc("GET /drops/{id}/queue/stream", s.auth.Require(s.handleQueueStream))
-	mux.HandleFunc("POST /drops/{id}/reserve", s.auth.Require(s.handleReserve))
+	// AGORA_SPEC.md section 12: the queue/admission system already bounds
+	// aggregate drop concurrency; these are the backstop per-IP and per-user
+	// limits against one client hammering retries, not a substitute for it.
+	reserveByIP := ratelimit.New(2, 10)
+	reserveByUser := ratelimit.New(2, 10)
+	mux.HandleFunc("POST /drops/{id}/reserve", reserveByIP.Wrap(s.auth.Require(func(w http.ResponseWriter, r *http.Request) {
+		if !reserveByUser.Allow(authn.UserID(r.Context())) {
+			httpx.Error(w, 429, "too many requests")
+			return
+		}
+		s.handleReserve(w, r)
+	})))
 	mux.HandleFunc("GET /reservations/{id}", s.auth.Require(s.handleGetReservation))
 	mux.HandleFunc("POST /reservations/{id}/checkout", s.auth.Require(s.handleCheckout))
 	s.mux = mux

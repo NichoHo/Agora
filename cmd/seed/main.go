@@ -31,7 +31,7 @@ var items = []item{ // price is US cents
 	{"Navy crew neck tee (M)", "Worn twice, no stains. Smoke-free home.", "fashion", "/seed/navy_tee.jpg", 1200},
 	{"The Design of Everyday Things", "Don Norman. Paperback, light shelf wear.", "books", "/seed/design_everyday_things.jpg", 1200},
 	{"Gooseneck electric kettle (white)", "Two years old, descaled monthly. Original box.", "home", "/seed/gooseneck_kettle.jpg", 8500},
-	{"Wooden chess set (weighted pieces)", "Complete set, felt-bottomed. Board folds for storage.", "hobby", "/seed/chess_set.jpg", 4300},
+	{"Sci-fi robot model kit (unbuilt)", "Sealed box, snap-fit master-grade kit. Bought a duplicate by mistake.", "hobby", "/seed/robot_model_kit.jpg", 4300},
 	{"Wireless noise-cancelling headphones", "Earpads replaced with official parts last month.", "electronics", "/seed/wireless_headphones.jpg", 19800},
 	{"Levi's 501 (W32 L32)", "Classic straight fit, honest fade.", "fashion", "/seed/levis_501.jpg", 5600},
 	{"Dune (paperback)", "Frank Herbert. English paperback, good condition.", "books", "/seed/dune_paperback.jpg", 800},

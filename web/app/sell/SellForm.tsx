@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { usd, type Category } from "@/lib/api";
-import { createListingAction, suggestAction, type Suggestion } from "./actions";
+import { createListingAction, suggestAction, uploadImageAction, type Suggestion } from "./actions";
 
 type Fields = { title: string; description: string; category_id: string; price: string };
 const EMPTY: Fields = { title: "", description: "", category_id: "", price: "" };
@@ -27,12 +27,33 @@ export default function SellForm({
   hadError: boolean;
 }) {
   const [imageUrl, setImageUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
   const [fields, setFields] = useState<Fields>(EMPTY);
   // fields currently showing an unedited AI suggestion (the primary-colored edge cue)
   const [aiFields, setAiFields] = useState<Set<keyof Fields>>(new Set());
   const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
   const [note, setNote] = useState("");
   const [pending, startTransition] = useTransition();
+
+  async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setNote("");
+    const data = new FormData();
+    data.set("image", file);
+    const result = await uploadImageAction(data);
+    setUploading(false);
+    if ("error" in result) {
+      setNote(
+        result.error === "signed_out"
+          ? "Sign in to upload a photo."
+          : "Couldn't upload that photo. JPEG and PNG only, 8MB or under.",
+      );
+      return;
+    }
+    setImageUrl(result.image_url);
+  }
 
   function setField(name: keyof Fields, value: string) {
     setFields((f) => ({ ...f, [name]: value }));
@@ -107,21 +128,21 @@ export default function SellForm({
         onChange={(e) => setField("title", e.target.value)}
         className={ai("title")}
       />
+      <input type="hidden" name="image_url" value={imageUrl} />
       <div className="flex gap-2">
         <Input
-          name="image_url"
-          type="url"
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-          aria-label="Photo URL"
-          placeholder="Photo URL"
+          type="file"
+          accept="image/jpeg,image/png"
+          onChange={handleFileSelect}
+          disabled={uploading}
+          aria-label="Photo"
           className="flex-1"
         />
         <Button
           type="button"
           variant="copilot"
           onClick={requestSuggestion}
-          disabled={pending || (!imageUrl && !fields.title)}
+          disabled={pending || uploading || (!imageUrl && !fields.title)}
         >
           <svg
             viewBox="0 0 24 24"
@@ -140,7 +161,7 @@ export default function SellForm({
         </Button>
       </div>
       <p aria-live="polite" className="text-xs leading-5 text-faint empty:hidden">
-        {note}
+        {uploading ? "Uploading…" : note}
       </p>
       {imageUrl ? (
         <img

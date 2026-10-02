@@ -48,7 +48,7 @@ func main() {
 
 	auth := authn.New(
 		env("ID_JWKS_URL", "http://localhost:8081/.well-known/jwks.json"),
-		env("ID_ISSUER", "http://localhost:8081"))
+		env("ID_ISSUER", "http://localhost:8081"), pool)
 	payc := &market.PayClient{
 		BaseURL: env("PAY_URL", "http://localhost:8083"),
 		Token:   os.Getenv("PAY_INTERNAL_TOKEN"),
@@ -64,7 +64,20 @@ func main() {
 		os.Exit(1)
 	}
 
-	srv := market.NewServer(pool, auth, payc)
+	var images *market.ImageStore
+	if endpoint := os.Getenv("MINIO_ENDPOINT"); endpoint != "" {
+		images, err = market.NewImageStore(ctx, endpoint,
+			env("MINIO_ACCESS_KEY", "agora"), os.Getenv("MINIO_SECRET_KEY"),
+			env("MINIO_BUCKET", "listings"), env("MINIO_USE_SSL", "") == "true")
+		if err != nil {
+			slog.Error("image store", "err", err)
+			os.Exit(1)
+		}
+	} else {
+		slog.Warn("MINIO_ENDPOINT unset; image upload disabled, image_url still accepts pasted URLs")
+	}
+
+	srv := market.NewServer(pool, auth, payc, images)
 	srv.StartSweeper(ctx, 30*time.Second, autoRelease)
 
 	addr := ":" + env("PORT", "8082")

@@ -1,7 +1,7 @@
 fastapi==0.115.*
 uvicorn[standard]==0.32.*
 psycopg[binary,pool]==3.2.*
-PyJWT[crypto]==2.10.*
+PyJWT[crypto]==2.13.*
 kafka-python==3.0.*
 anthropic>=0.92
 opentelemetry-api==1.27.*
@@ -9,3 +9,10 @@ opentelemetry-sdk==1.27.*
 opentelemetry-exporter-otlp-proto-http==1.27.*
 opentelemetry-instrumentation-fastapi==0.48b0
 setuptools<81 # opentelemetry-instrumentation still imports pkg_resources, removed entirely in setuptools 81
+
+# pip-audit (wired into CI) also flags starlette (pulled in by fastapi==0.115.*)
+# and protobuf (pulled in by opentelemetry-exporter-otlp-proto-http==1.27.*).
+# Both fixes require bumping fastapi/opentelemetry past what's pinned above,
+# which pip's resolver rejects outright at the currently-pinned versions
+# (tested; not a version bound here, a hard conflict) — scheduled as its own
+# fastapi/otel upgrade, not a same-day patch. See ci.yml's --ignore-vuln list.

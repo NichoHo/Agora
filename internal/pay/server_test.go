@@ -38,7 +38,7 @@ func testHTTP(t *testing.T, sw *SwitchClient) *httpEnv {
 	}))
 	t.Cleanup(jwksSrv.Close)
 
-	auth := authn.New(jwksSrv.URL, "http://issuer.test")
+	auth := authn.New(jwksSrv.URL, "http://issuer.test", l.Pool)
 	ts := httptest.NewServer(NewServer(l.Pool, auth, internalToken, sw))
 	t.Cleanup(ts.Close)
 	return &httpEnv{ts: ts, signer: signer, ledger: l}

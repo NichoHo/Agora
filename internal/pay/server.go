@@ -26,8 +26,9 @@ const depositCap = 100_000
 
 // authUnknownWait bounds how long a fund request waits for switch's own
 // StatusProbeJob (runs every 30s, ignores payments under 10s old) to resolve
-// an AUTH_UNKNOWN response. See docs/adr/0003.
-const authUnknownWait = 90 * time.Second
+// an AUTH_UNKNOWN response. See docs/adr/0003. A var, not a const, so
+// switchclient_test.go can shorten it instead of a test waiting 90s.
+var authUnknownWait = 90 * time.Second
 
 func NewServer(pool *pgxpool.Pool, auth *authn.Verifier, internalToken string, sw *SwitchClient) http.Handler {
 	s := &Server{ledger: &Ledger{Pool: pool}, auth: auth, internalToken: internalToken, sw: sw}

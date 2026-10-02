@@ -105,7 +105,7 @@ export default function RootLayout({
           {children}
         </main>
         <footer className="border-t border-line py-6 text-center text-xs text-faint">
-          Vault is a portfolio project. No real money, simulated everything.
+          A simulation: no real money, no real cards, synthetic data throughout.
         </footer>
       </body>
     </html>

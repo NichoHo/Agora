@@ -148,7 +148,8 @@ List -> **Add Ingress Rules**:
 
 Only 22 and 3001 are opened — `id`/`market`/`pay`/`assist` (8081-8084) and
 Postgres/Redpanda (5432/9092) stay unreachable from the internet, same as the
-AWS deploy.
+AWS deploy. If you add switch in step 6, its ports (8080, 3002) stay closed
+too.
 
 ### 5. Point the app at its public IP, then start it
 
@@ -174,11 +175,49 @@ First run builds 5 images from source (Go x4, Python, Next.js) — several
 minutes on a fresh instance. `docker compose ps` should show every service
 healthy/running when done.
 
-### 6. Verify
+### 6. Add card payments through switch (optional)
+
+Without this step, `pay` runs wallet-only and never charges a card. This step
+runs switch (the Java card gateway) on the same instance. `pay` reaches it on
+the internal Docker network, so no new port opens to the internet, and
+checkout does not wait for switch's Render copy to wake up.
+
+```bash
+cd ~
+git clone https://github.com/NichoHo/Switch.git
+cd ~/vault
+cat >> .env <<'EOF'
+COMPOSE_FILE=docker-compose.yml:docker-compose.switch.yml
+SWITCH_URL=http://gateway:8080
+SWITCH_API_KEY=agora-service-integration-key
+OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+EOF
+docker compose up -d
+```
+
+- `COMPOSE_FILE` adds `docker-compose.switch.yml`, which includes
+  `~/Switch/docker-compose.yml` in this project. Plain `docker compose`
+  commands then manage both stacks.
+- `SWITCH_API_KEY` is the demo key that switch's `V10__agora_merchant.sql`
+  migration creates. It is a dev secret, like the rest of `.env`.
+- `OTEL_EXPORTER_OTLP_ENDPOINT` sends switch's traces to this stack's Jaeger,
+  so one checkout shows as one trace across `pay` and `switch-gateway`.
+- switch adds 3 containers. Each Java service is capped at 768 MB, so switch
+  uses at most about 1.6 GB of the 12 GB.
+- The first run builds 2 more images (Maven, Java 21). This adds several
+  minutes on a fresh instance.
+- switch's Postgres has no volume. Its payment records reset when that
+  container is recreated. Agora's own ledger is not affected.
+
+### 7. Verify
 
 Open `http://<public-ip>:3001` in a browser. Confirm login/signup works end
 to end (this exercises the `id` service's OIDC redirect through `WEB_URL`,
 the part that breaks if step 5 was skipped).
+
+If you did step 6, `docker compose logs pay | grep switch` must show
+`card authorization via switch enabled`. Then buy something and confirm the
+order is funded.
 
 ## Teardown
 

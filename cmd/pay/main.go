@@ -52,7 +52,7 @@ func main() {
 
 	auth := authn.New(
 		env("ID_JWKS_URL", "http://localhost:8081/.well-known/jwks.json"),
-		env("ID_ISSUER", "http://localhost:8081"))
+		env("ID_ISSUER", "http://localhost:8081"), pool)
 
 	var sw *pay.SwitchClient
 	if switchURL := os.Getenv("SWITCH_URL"); switchURL != "" {

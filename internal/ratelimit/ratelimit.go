@@ -34,7 +34,11 @@ func New(rps float64, burst int) *Limiter {
 	return &Limiter{visitors: map[string]*rate.Limiter{}, rps: rate.Limit(rps), burst: burst}
 }
 
-func (l *Limiter) allow(key string) bool {
+// Allow reports whether key (an IP, a user ID, or any other bucket
+// identity) is still under budget, consuming one token if so. Exported for
+// callers that need a non-IP key, e.g. a per-user budget alongside Wrap's
+// per-IP one on the same route.
+func (l *Limiter) Allow(key string) bool {
 	l.mu.Lock()
 	v, ok := l.visitors[key]
 	if !ok {
@@ -60,7 +64,7 @@ func clientIP(r *http.Request) string {
 // calls next.
 func (l *Limiter) Wrap(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if !l.allow(clientIP(r)) {
+		if !l.Allow(clientIP(r)) {
 			httpx.Error(w, 429, "too many requests")
 			return
 		}

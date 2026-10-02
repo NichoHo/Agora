@@ -28,6 +28,26 @@ services:
       timeout: 2s
       retries: 15
 
+  minio:
+    # MinIO stopped publishing free images on Docker Hub AND quay.io (both
+    # now 401/gone, verified 2026-09-27); bitnamilegacy is the last public,
+    # anonymously-pullable mirror. No `command:` override: this image's own
+    # entrypoint drives startup, unlike upstream minio/minio.
+    image: bitnamilegacy/minio:latest
+    environment:
+      MINIO_ROOT_USER: agora
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-dev-insecure-minio-password}
+    # No published port; see the db service's comment above. market talks to
+    # it over the Docker network and hands the browser presigned URLs, not a
+    # direct MinIO address.
+    volumes:
+      - miniodata:/bitnami/minio/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+
   redpanda:
     image: redpandadata/redpanda:v24.2.7
     command:
@@ -86,6 +106,10 @@ services:
       AUTO_RELEASE_AFTER: 72h
       REDPANDA_BROKERS: redpanda:9092
       OTEL_EXPORTER_OTLP_ENDPOINT: jaeger:4318
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: agora
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-dev-insecure-minio-password}
+      MINIO_BUCKET: listings
     depends_on:
       db:
         condition: service_healthy
@@ -94,6 +118,8 @@ services:
       pay:
         condition: service_started
       redpanda:
+        condition: service_healthy
+      minio:
         condition: service_healthy
 
   pay:
@@ -222,3 +248,4 @@ services:
 
 volumes:
   dbdata:
+  miniodata:

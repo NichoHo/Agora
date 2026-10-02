@@ -49,7 +49,7 @@ func main() {
 
 	auth := authn.New(
 		env("ID_JWKS_URL", "http://localhost:8081/.well-known/jwks.json"),
-		env("ID_ISSUER", "http://localhost:8081"))
+		env("ID_ISSUER", "http://localhost:8081"), pool)
 	rdb := sale.NewRedis(env("REDIS_ADDR", "localhost:6379"))
 	if err := rdb.Ping(ctx); err != nil {
 		slog.Error("redis connect", "err", err)

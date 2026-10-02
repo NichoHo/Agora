@@ -55,7 +55,10 @@ export default async function OrdersPage({
           Nothing here yet. {role === "buyer" ? "Go buy something nice." : "List something for sale."}
         </p>
       ) : (
-        <StaggerGrid className="flex flex-col gap-2">
+        // Same fix as search/page.tsx: whileInView+once:true (see StaggerGrid)
+        // never re-fires for a client-side nav that reuses this instance, so
+        // switching the Purchases/Sales tab needs a fresh key to remount it.
+        <StaggerGrid key={role} className="flex flex-col gap-2">
           {orders.map((o) => (
             <Link
               key={o.id}

@@ -1,0 +1,7 @@
+# Runs switch (github.com/NichoHo/Switch, cloned next to this repo as ../Switch)
+# inside this compose project, so pay reaches it at http://gateway:8080 over the
+# internal network. Used by local dev (README "Run it") and the Oracle deploy
+# (deploy/oracle/README.md step 6). The include path is relative to the project
+# directory, not to this file.
+include:
+  - ../Switch/docker-compose.yml

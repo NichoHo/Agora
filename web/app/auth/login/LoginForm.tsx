@@ -143,6 +143,11 @@ export default function LoginForm({ returnTo }: { returnTo: string }) {
         {busy ? "Signing in…" : "Sign in"}
       </Button>
       <p className="text-center text-sm text-muted-foreground">
+        <Link href="/auth/forgot" className="text-primary underline underline-offset-4">
+          Forgot password?
+        </Link>
+      </p>
+      <p className="text-center text-sm text-muted-foreground">
         No account?{" "}
         <Link
           href={`/auth/register?return_to=${encodeURIComponent(returnTo)}`}
