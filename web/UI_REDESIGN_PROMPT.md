@@ -1,10 +1,10 @@
-# Vault UI Redesign — Enterprise Marketplace
+# Agora UI Redesign — Enterprise Marketplace
 
-A ready-to-execute brief for restyling the Vault web app (`web/`) into a professional, modern, clean enterprise-marketplace look. Hand this whole file to an implementation session as the starting prompt.
+A ready-to-execute brief for restyling the Agora web app (`web/`) into a professional, modern, clean enterprise-marketplace look. Hand this whole file to an implementation session as the starting prompt.
 
 ## Context
 
-Vault is a Next.js 16 (App Router) + React 19 + Tailwind v4 C2C marketplace. It already has a token-based design system in [globals.css](app/globals.css) called "Slate Enterprise (v3)": indigo accent, slate neutrals, light **and** dark mode toggled via `data-theme` and a `ThemeToggle` component. Pages: home, search, listing detail, sell, checkout, orders (+detail), wallet, admin, and the auth flow (login/register/consent/MFA). Shared components live in `web/components/` (`ListingCard`, `StatusBadge`, `ServiceUnavailable`, `OrderTimeline`, `CategoryChips`, `BackLink`, `ThemeToggle`). No UI library is installed yet — everything is hand-rolled Tailwind.
+Agora is a Next.js 16 (App Router) + React 19 + Tailwind v4 C2C marketplace. It already has a token-based design system in [globals.css](app/globals.css) called "Slate Enterprise (v3)": indigo accent, slate neutrals, light **and** dark mode toggled via `data-theme` and a `ThemeToggle` component. Pages: home, search, listing detail, sell, checkout, orders (+detail), wallet, admin, and the auth flow (login/register/consent/MFA). Shared components live in `web/components/` (`ListingCard`, `StatusBadge`, `ServiceUnavailable`, `OrderTimeline`, `CategoryChips`, `BackLink`, `ThemeToggle`). No UI library is installed yet — everything is hand-rolled Tailwind.
 
 This redesign replaces the visual system end to end. It is not a rebrand of the product concept — copy, IA, and data stay the same; only the look, the component foundation, and the motion layer change.
 
@@ -80,7 +80,7 @@ Replace the `@theme` block in [globals.css](app/globals.css) with a light-only p
 
 Delete the entire `:root[data-theme="dark"]` override block and the `@custom-variant dark (...)` line — there's nothing left to switch to.
 
-**Amendment (from Phase 1 planning):** shadcn/ui's component source hardcodes `bg-muted`/`text-muted-foreground` (a subtle background) and `bg-accent`/`text-accent-foreground` (a neutral hover surface, used by dropdown/select items) — both names collide with what those words already meant in this file (`muted` = secondary text, `accent` = the brand color). Since shadcn's registry files can't be safely hand-patched on every update, Vault's own usage is renamed instead: `--color-muted` → `--color-muted-foreground`, and `--color-accent`/`--color-accent-strong`/`--color-accent-tint` → `--color-primary`/`--color-primary-strong`/`--color-primary-tint` (a direct semantic match to shadcn's own "primary buttons and actions" token). `muted` and `accent` become shadcn's neutral background/hover-surface values. See the Phase 1 plan (`docs/superpowers/plans/2026-08-19-ui-redesign-phase1-foundation.md`) for the full reasoning and exact values.
+**Amendment (from Phase 1 planning):** shadcn/ui's component source hardcodes `bg-muted`/`text-muted-foreground` (a subtle background) and `bg-accent`/`text-accent-foreground` (a neutral hover surface, used by dropdown/select items) — both names collide with what those words already meant in this file (`muted` = secondary text, `accent` = the brand color). Since shadcn's registry files can't be safely hand-patched on every update, Agora's own usage is renamed instead: `--color-muted` → `--color-muted-foreground`, and `--color-accent`/`--color-accent-strong`/`--color-accent-tint` → `--color-primary`/`--color-primary-strong`/`--color-primary-tint` (a direct semantic match to shadcn's own "primary buttons and actions" token). `muted` and `accent` become shadcn's neutral background/hover-surface values. See the Phase 1 plan (`docs/superpowers/plans/2026-08-19-ui-redesign-phase1-foundation.md`) for the full reasoning and exact values.
 
 The legacy "Ishidatami" alias block (`--color-paper`, `--color-torii`, `--color-sumi-*`, etc.) can stay temporarily if it's still load-bearing for unmigrated pages, but since this redesign covers every page in one pass, delete it once all pages are converted to the semantic names directly.
 
@@ -112,7 +112,7 @@ Large display type (hero headline, page titles) should sit at regular/medium wei
 Adopt shadcn/ui as the primitive layer instead of continuing to hand-roll every control.
 
 1. `npx shadcn init` in `web/`. Base color: neutral. Style: **New York** (more structured/enterprise than the default style, pairs well with the denser marketplace layouts below).
-2. Reconcile shadcn's generated CSS variables with the token system above instead of running two parallel palettes — point shadcn's `--primary` / `--destructive` / `--border` / `--ring` etc. at the Vault semantic tokens (`var(--color-accent)`, `var(--color-danger)`, `var(--color-line)`, …) so every shadcn component inherits the orange/white identity automatically.
+2. Reconcile shadcn's generated CSS variables with the token system above instead of running two parallel palettes — point shadcn's `--primary` / `--destructive` / `--border` / `--ring` etc. at the Agora semantic tokens (`var(--color-accent)`, `var(--color-danger)`, `var(--color-line)`, …) so every shadcn component inherits the orange/white identity automatically.
 3. Icons: adopt `lucide-react` (shadcn's default) for header, category chips, status badges, and empty states — replace any ad hoc inline SVGs with it.
 4. Pull in components as needed, prioritized by where they replace the most hand-rolled code:
    - `button`, `input`, `textarea`, `select`, `checkbox`, `radio-group`, `label`, `form` — forms across sell/checkout/auth.

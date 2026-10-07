@@ -13,7 +13,7 @@ export default function IdCard({
     <Reveal mode="mount" className="mx-auto mt-12 max-w-sm">
       <div className="mb-4 text-center">
         <span className="rounded-control bg-primary px-2 py-1 text-xs font-bold tracking-widest text-on-solid">
-          VAULT ID
+          AGORA ID
         </span>
       </div>
       <div className="rounded-panel border border-line bg-surface p-8 shadow-md">

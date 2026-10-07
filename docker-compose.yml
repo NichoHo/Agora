@@ -1,18 +1,20 @@
+name: agora
+
 services:
   db:
     image: postgres:17-alpine
     environment:
-      POSTGRES_USER: vault
-      POSTGRES_PASSWORD: vault
-      POSTGRES_DB: vault
+      POSTGRES_USER: agora
+      POSTGRES_PASSWORD: agora
+      POSTGRES_DB: agora
     # No published port: this same compose file is what deploy/oracle runs,
     # and Postgres on the public internet with these default credentials is
     # exactly what gets found by credential-stuffing scans. Reach it via
-    # `docker compose exec db psql -U vault -d vault`, or add a
+    # `docker compose exec db psql -U agora -d agora`, or add a
     # docker-compose.override.yml (gitignored) with your own `ports:` for a
     # local GUI client.
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U vault"]
+      test: ["CMD-SHELL", "pg_isready -U agora"]
       interval: 2s
       timeout: 2s
       retries: 15
@@ -79,7 +81,7 @@ services:
     ports:
       - "8081:8081"
     environment:
-      DATABASE_URL: postgres://vault:vault@db:5432/vault
+      DATABASE_URL: postgres://agora:agora@db:5432/agora
       ID_ISSUER: http://localhost:8081
       WEB_URL: http://${PUBLIC_HOST:-localhost}:3001
       REDPANDA_BROKERS: redpanda:9092
@@ -92,13 +94,14 @@ services:
         condition: service_healthy
 
   market:
+    restart: on-failure
     build:
       context: .
       args: { SERVICE: market }
     ports:
       - "8082:8082"
     environment:
-      DATABASE_URL: postgres://vault:vault@db:5432/vault
+      DATABASE_URL: postgres://agora:agora@db:5432/agora
       ID_JWKS_URL: http://id:8081/.well-known/jwks.json
       ID_ISSUER: http://localhost:8081
       PAY_URL: http://pay:8083
@@ -129,12 +132,12 @@ services:
     ports:
       - "8083:8083"
     environment:
-      DATABASE_URL: postgres://vault:vault@db:5432/vault
+      DATABASE_URL: postgres://agora:agora@db:5432/agora
       ID_JWKS_URL: http://id:8081/.well-known/jwks.json
       ID_ISSUER: http://localhost:8081
       PAY_INTERNAL_TOKEN: dev-internal-token
       REDPANDA_BROKERS: redpanda:9092
-      # switch is a separate repo/stack (AGORA_SPEC.md section 9.1). Unset by
+      # switch is a separate repo/stack (SPEC.md section 9.1). Unset by
       # default so `make up` works standalone; set both to opt into real card
       # auth once `switch`'s own docker compose stack is also running:
       #   SWITCH_URL: http://host.docker.internal:8080
@@ -157,7 +160,7 @@ services:
     ports:
       - "8085:8085"
     environment:
-      DATABASE_URL: postgres://vault:vault@db:5432/vault
+      DATABASE_URL: postgres://agora:agora@db:5432/agora
       ID_JWKS_URL: http://id:8081/.well-known/jwks.json
       ID_ISSUER: http://localhost:8081
       MARKET_URL: http://market:8082
@@ -182,10 +185,10 @@ services:
     ports:
       - "8084:8084"
     environment:
-      DATABASE_URL: postgres://vault:vault@db:5432/vault
+      DATABASE_URL: postgres://agora:agora@db:5432/agora
       ID_JWKS_URL: http://id:8081/.well-known/jwks.json
       ID_ISSUER: http://localhost:8081
-      ADMIN_EMAILS: alice@vault.test
+      ADMIN_EMAILS: alice@agora.test
       REDPANDA_BROKERS: redpanda:9092
       OTEL_EXPORTER_OTLP_ENDPOINT: jaeger:4318
       # ANTHROPIC_API_KEY: set in the environment to enable real VLM suggestions
@@ -202,10 +205,10 @@ services:
     ports:
       - "8086:8086"
     environment:
-      DATABASE_URL: postgres://vault:vault@db:5432/vault
+      DATABASE_URL: postgres://agora:agora@db:5432/agora
       ID_JWKS_URL: http://id:8081/.well-known/jwks.json
       ID_ISSUER: http://localhost:8081
-      ADMIN_EMAILS: alice@vault.test
+      ADMIN_EMAILS: alice@agora.test
       REDPANDA_BROKERS: redpanda:9092
       OTEL_EXPORTER_OTLP_ENDPOINT: jaeger:4318
     depends_on:
@@ -226,7 +229,7 @@ services:
       PAY_URL: http://pay:8083
       ASSIST_URL: http://assist:8084
       RISK_URL: http://risk:8086
-      ADMIN_EMAILS: alice@vault.test
+      ADMIN_EMAILS: alice@agora.test
       WEB_ORIGIN: http://${PUBLIC_HOST:-localhost}:3001
     depends_on:
       - id
@@ -241,11 +244,15 @@ services:
       args: { SERVICE: seed }
     profiles: ["seed"]
     environment:
-      DATABASE_URL: postgres://vault:vault@db:5432/vault
+      DATABASE_URL: postgres://agora:agora@db:5432/agora
     depends_on:
       db:
         condition: service_healthy
 
 volumes:
   dbdata:
+    name: agora_dbdata
+    external: true
   miniodata:
+    name: agora_miniodata
+    external: true

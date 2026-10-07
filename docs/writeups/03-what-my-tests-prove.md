@@ -6,14 +6,14 @@ matter aren't "wrong output for input X." They're "under concurrency, value was
 created or destroyed," and you will not find those by asserting on examples,
 because the example that breaks is the interleaving you didn't think to write.
 
-So [Vault](https://github.com/NichoHo/Agora)'s payment service is tested by
+So [Agora](https://github.com/NichoHo/Agora)'s payment service is tested by
 **invariants**: properties that must hold across *every* state, which the tests
 then try to violate. This is the testing style I care most about, and money is
 where it earns its keep.
 
 ## The ledger, in one sentence
 
-Vault's `pay` service is a double-entry ledger. Every movement of money is a
+Agora's `pay` service is a double-entry ledger. Every movement of money is a
 `transfer` that writes two signed `entries`, one debit and one credit, that sum
 to zero. Accounts are users, an escrow pool, a platform-revenue account, and an
 `external` source for demo deposits. Balances are `int64` minor units (US cents); there
@@ -154,6 +154,6 @@ can't violate it, and then **write a test that actively tries to break it**, wit
 real concurrency, under `-race`. That's what it takes to trust code that moves
 money.
 
-*Vault's ledger is [`internal/pay`](../../internal/pay/). The invariant suite is
+*Agora's ledger is [`internal/pay`](../../internal/pay/). The invariant suite is
 in [`ledger_test.go`](../../internal/pay/ledger_test.go) and the cross-service
 race test in [`orders_test.go`](../../internal/market/orders_test.go).*

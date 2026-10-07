@@ -1,7 +1,7 @@
 # Building an OIDC provider from the RFCs (and what I got wrong first)
 
 Most tutorials tell you to put an identity provider in front of your app and
-never look inside. I did the opposite: for [Vault](https://github.com/NichoHo/Agora),
+never look inside. I did the opposite: for [Agora](https://github.com/NichoHo/Agora),
 a small marketplace, I built the OAuth 2.0 / OIDC provider myself, reading the
 RFCs instead of reaching for a library: Authorization Code + PKCE, RS256 with
 JWKS, TOTP MFA, and rotating refresh tokens with reuse detection. Not because you
@@ -114,7 +114,7 @@ rotation propagates without downtime.
 ## Refresh token rotation, and treating reuse as theft
 
 Access tokens are short-lived (15 minutes); refresh tokens are the long-lived
-credential, so they get the most careful handling (RFC 6819 §5.2.2.3). Vault
+credential, so they get the most careful handling (RFC 6819 §5.2.2.3). Agora
 *rotates* them: every refresh returns a new refresh token and marks the old one
 used. A refresh token belongs to a **family**: the chain of rotations from one
 original grant.
@@ -181,6 +181,6 @@ value of building the provider from the RFCs was ending up unable to *un*-see
 why. In production I'd still reach for the vetted library. But now I know what
 it's protecting me from.
 
-*Vault's identity provider is [`internal/id`](../../internal/id/). The misuse
+*Agora's identity provider is [`internal/id`](../../internal/id/). The misuse
 tests (replayed codes, wrong verifier, `alg:none`, refresh reuse) are the
 loudest signal in the repo.*

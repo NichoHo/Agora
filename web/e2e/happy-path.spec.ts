@@ -7,8 +7,8 @@ import { totp } from "./totp";
 // the buyer is seeded bob ($1,000, MFA off).
 
 const uniq = Date.now();
-const seller = { email: `seller-${uniq}@vault.test`, handle: `s${uniq}`, password: "e2e-pass-123" };
-const bob = { email: "bob@vault.test", password: "password123!" };
+const seller = { email: `seller-${uniq}@agora.test`, handle: `s${uniq}`, password: "e2e-pass-123" };
+const bob = { email: "bob@agora.test", password: "password123!" };
 const PRICE = 5000; // cents
 
 // The OIDC redirect chain ends on either the consent screen (first authorization
@@ -70,7 +70,7 @@ test("register, MFA, AI listing, escrow buy, wallet reconcile", async ({ browser
   await sellerPage.getByRole("link", { name: "Register" }).click();
   // wait for the client-side nav to the register page before filling, or the
   // email fill races onto the login page's email input and gets wiped
-  await expect(sellerPage.getByRole("heading", { name: /Create your Vault ID/ })).toBeVisible();
+  await expect(sellerPage.getByRole("heading", { name: /Create your Agora ID/ })).toBeVisible();
   await sellerPage.getByPlaceholder("Email").fill(seller.email);
   await sellerPage.getByPlaceholder("Handle (a-z, 0-9, _)").fill(seller.handle);
   await sellerPage.getByPlaceholder("Password (8+ characters)").fill(seller.password);

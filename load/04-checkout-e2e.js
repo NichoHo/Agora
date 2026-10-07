@@ -1,4 +1,4 @@
-// Scenario 4 (AGORA_SPEC.md section 11): checkout end to end.
+// Scenario 4 (SPEC.md section 11): checkout end to end.
 // Target: p99 < 800ms including the Java hop.
 //
 // Tests pay's escrow-fund endpoint directly (the scenario is named "through

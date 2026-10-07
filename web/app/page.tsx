@@ -33,7 +33,7 @@ export default async function Home() {
                 A marketplace built from the hard parts up.
               </h1>
               <p className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
-                Vault is a small marketplace for buying and selling secondhand things. The parts
+                Agora is a small marketplace for buying and selling secondhand things. The parts
                 most projects hand to a library are written from scratch here: the sign-in, the
                 escrow that holds a buyer&apos;s money until their item arrives, and the assistant
                 that drafts a listing from a photo.

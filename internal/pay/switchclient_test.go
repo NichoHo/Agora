@@ -40,7 +40,7 @@ func fakeSwitch(t *testing.T, authorizeState string, pollStates []string) (*http
 	return srv, &polls
 }
 
-// TestAuthorizeAndResolve_ResolvesFromAuthUnknown covers AGORA_SPEC.md
+// TestAuthorizeAndResolve_ResolvesFromAuthUnknown covers SPEC.md
 // section 10.3's "force AUTH_UNKNOWN from switch" chaos case for the half
 // that resolves: switch's real StatusProbeJob (simulated here by the second
 // poll response) eventually settles the payment, and AuthorizeAndResolve

@@ -64,7 +64,7 @@ func TestGenerateTOTPSecretAndURI(t *testing.T) {
 		t.Fatal(err)
 	}
 	uri := OtpauthURI("a@b.c", s)
-	if want := "otpauth://totp/Vault:a@b.c?secret=" + s; len(uri) < len(want) {
+	if want := "otpauth://totp/Agora:a@b.c?secret=" + s; len(uri) < len(want) {
 		t.Fatalf("uri too short: %s", uri)
 	}
 }

@@ -108,10 +108,10 @@ func (v *Verifier) Require(next http.HandlerFunc) http.HandlerFunc {
 			httpx.Error(w, 503, "idp unreachable")
 			return
 		}
-		claims, err := id.VerifyJWT(token, keys, v.issuer, "vault", time.Now())
+		claims, err := id.VerifyJWT(token, keys, v.issuer, "agora", time.Now())
 		if err != nil && strings.Contains(err.Error(), "unknown kid") {
 			if keys, err2 := v.keys(true); err2 == nil {
-				claims, err = id.VerifyJWT(token, keys, v.issuer, "vault", time.Now())
+				claims, err = id.VerifyJWT(token, keys, v.issuer, "agora", time.Now())
 			}
 		}
 		if err != nil {

@@ -1,6 +1,6 @@
-# Vault: Oracle Cloud "Always Free" Deployment
+# Agora: Oracle Cloud "Always Free" Deployment
 
-Single instance running the full Vault stack via Docker Compose, on Oracle Cloud
+Single instance running the full Agora stack via Docker Compose, on Oracle Cloud
 Infrastructure's (OCI) permanent free tier. This is the free-forever sibling of
 [`deploy/terraform`](../terraform/README.md) (the AWS EC2 version, ~$15/month).
 
@@ -107,7 +107,7 @@ public-IP toggle works when the instance references it.
 
 Console -> hamburger menu -> Compute -> Instances -> **Create Instance**.
 
-- **Name:** `vault-server`
+- **Name:** `agora-server`
 - **Image:** Canonical Ubuntu, latest 22.04 (or newer) **aarch64** build — the
   Console defaults to this once the shape below is picked. Do not pick a
   Marketplace image; only the plain platform image is guaranteed free.
@@ -166,7 +166,7 @@ Find the public IP on the instance's Console page, then:
 
 ```bash
 ssh ubuntu@<public-ip>
-cd ~/vault
+cd ~/agora
 echo "PUBLIC_HOST=<public-ip>" > .env
 docker compose up -d
 ```
@@ -185,7 +185,7 @@ checkout does not wait for switch's Render copy to wake up.
 ```bash
 cd ~
 git clone https://github.com/NichoHo/Switch.git
-cd ~/vault
+cd ~/agora
 cat >> .env <<'EOF'
 COMPOSE_FILE=docker-compose.yml:docker-compose.switch.yml
 SWITCH_URL=http://gateway:8080
@@ -221,7 +221,7 @@ order is funded.
 
 ## Teardown
 
-Console -> Compute -> Instances -> `vault-server` -> **Terminate** (also tick
+Console -> Compute -> Instances -> `agora-server` -> **Terminate** (also tick
 "Permanently delete the boot volume" to free the storage quota). No cost was
 ever incurred, so there's nothing to "clean up" billing-wise — this just
 reclaims the free-tier slot.

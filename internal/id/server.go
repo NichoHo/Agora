@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	sessionCookie = "vault_sid"
+	sessionCookie = "agora_sid"
 	sessionTTL    = 30 * 24 * time.Hour
 	codeTTL       = 5 * time.Minute
 	tokenTTL      = 15 * time.Minute
@@ -79,7 +79,7 @@ func (s *Server) audit(ctx context.Context, actor, action string, meta map[strin
 // emit writes to id's outbox (relayed to the id.events stream the same way
 // every other service's outbox is). Separate from audit: audit is id's own
 // permanent record and fires on far more actions than risk needs to hear
-// about; emit is only for the two signals AGORA_SPEC.md section 8.3 names.
+// about; emit is only for the two signals SPEC.md section 8.3 names.
 func (s *Server) emit(ctx context.Context, topic string, payload map[string]any) {
 	if tp := tracing.Traceparent(ctx); tp != "" {
 		payload["_trace"] = tp

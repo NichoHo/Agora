@@ -60,7 +60,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
         className="flex items-center gap-3 rounded-card border border-line bg-surface p-3 transition-colors hover:border-line-strong"
       >
         <img
-          src={order.listing_image || "https://picsum.photos/seed/vault/160/120"}
+          src={order.listing_image || "https://picsum.photos/seed/agora/160/120"}
           alt=""
           className="h-16 w-20 rounded-control object-cover"
         />

@@ -1,4 +1,4 @@
-# Vault: retry the Resource Manager stack's Apply job until Ampere A1
+# Agora: retry the Resource Manager stack's Apply job until Ampere A1
 # capacity frees up in the region. Free to run - Resource Manager itself
 # doesn't charge, and a failed "Out of host capacity" job never provisions
 # anything, so nothing bills.

@@ -70,8 +70,8 @@ export async function middleware(req: NextRequest) {
     return withCSP(req, NextResponse.next());
   }
 
-  const access = req.cookies.get("vault_token")?.value;
-  const refresh = req.cookies.get("vault_refresh")?.value;
+  const access = req.cookies.get("agora_token")?.value;
+  const refresh = req.cookies.get("agora_refresh")?.value;
   if (!refresh || (access && !expired(access))) return withCSP(req, NextResponse.next());
 
   const idURL = process.env.ID_URL ?? "http://localhost:8081";
@@ -82,15 +82,15 @@ export async function middleware(req: NextRequest) {
       body: new URLSearchParams({
         grant_type: "refresh_token",
         refresh_token: refresh,
-        client_id: "vault-web",
+        client_id: "agora-web",
       }),
       cache: "no-store",
     });
     if (!resp.ok) {
       // rotated-away or revoked family: drop both cookies, act signed out
       const out = NextResponse.next();
-      out.cookies.delete("vault_token");
-      out.cookies.delete("vault_refresh");
+      out.cookies.delete("agora_token");
+      out.cookies.delete("agora_refresh");
       return withCSP(req, out);
     }
     const tok = (await resp.json()) as {
@@ -99,12 +99,12 @@ export async function middleware(req: NextRequest) {
       expires_in: number;
     };
     // make the fresh token visible to this request's server components too
-    req.cookies.set("vault_token", tok.access_token);
+    req.cookies.set("agora_token", tok.access_token);
     const out = NextResponse.next({ request: { headers: req.headers } });
-    out.cookies.set("vault_token", tok.access_token, {
+    out.cookies.set("agora_token", tok.access_token, {
       httpOnly: true, sameSite: "lax", secure: SECURE_COOKIES, path: "/", maxAge: tok.expires_in,
     });
-    out.cookies.set("vault_refresh", tok.refresh_token, {
+    out.cookies.set("agora_refresh", tok.refresh_token, {
       httpOnly: true, sameSite: "lax", secure: SECURE_COOKIES, path: "/", maxAge: 30 * 24 * 3600,
     });
     return withCSP(req, out);

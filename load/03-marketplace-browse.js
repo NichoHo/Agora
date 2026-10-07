@@ -1,4 +1,4 @@
-// Scenario 3 (AGORA_SPEC.md section 11): marketplace browse.
+// Scenario 3 (SPEC.md section 11): marketplace browse.
 // Target: p99 < 100ms. GET /listings is public; no auth setup needed.
 import http from 'k6/http';
 import { check } from 'k6';

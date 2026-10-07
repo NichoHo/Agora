@@ -5,7 +5,7 @@ from pathlib import Path
 
 from psycopg_pool import ConnectionPool
 
-DATABASE_URL = os.environ.get("DATABASE_URL", "postgres://vault:vault@localhost:5432/vault")
+DATABASE_URL = os.environ.get("DATABASE_URL", "postgres://agora:agora@localhost:5432/agora")
 
 pool = ConnectionPool(DATABASE_URL, min_size=1, max_size=5, open=False)
 

@@ -1,4 +1,4 @@
-// Scenario 5 (AGORA_SPEC.md section 11): ledger write.
+// Scenario 5 (SPEC.md section 11): ledger write.
 // Target: p99 < 150ms, invariants hold throughout.
 //
 // Pure ledger throughput: run this one with SWITCH_URL unset on pay, so

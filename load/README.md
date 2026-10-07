@@ -1,4 +1,4 @@
-# Load tests (AGORA_SPEC.md section 11)
+# Load tests (SPEC.md section 11)
 
 Five k6 scenarios. Run with the official image, no local k6 install needed,
 joined to the compose network so service names resolve. Mount the directory
@@ -6,7 +6,7 @@ rather than piping the script over stdin: 01, 02, 04, and 05 all `import`
 from `./lib/`, which only resolves when k6 can see the file on disk.
 
 ```bash
-docker run --rm --network vault_default -v "$(pwd)/load:/load" -w /load \
+docker run --rm --network agora_default -v "$(pwd)/load:/load" -w /load \
   -e SALE_URL=http://sale:8085 -e MARKET_URL=http://market:8082 \
   -e PAY_URL=http://pay:8083 -e ID_URL=http://id:8081 \
   grafana/k6 run 01-drop-spike.js
@@ -25,7 +25,7 @@ into Redis directly instead of adding one just for this:
 ```bash
 docker compose exec redis redis-cli SMEMBERS sale:<drop-id>:queue
 # or, simpler: admit every user in the pool k6 just registered:
-docker compose exec -T db psql -U vault -d vault -c \
+docker compose exec -T db psql -U agora -d agora -c \
   "SELECT id FROM id.users WHERE email LIKE 'loadtest-%'" -t -A | \
   xargs docker compose exec -T redis redis-cli SADD sale:<drop-id>:admitted
 ```
@@ -33,7 +33,7 @@ docker compose exec -T db psql -U vault -d vault -c \
 ## After 04 and 05 (anything touching pay)
 
 ```bash
-docker compose exec -T db psql -U vault -d vault < load/verify_invariants.sql
+docker compose exec -T db psql -U agora -d agora < load/verify_invariants.sql
 ```
 
 (`-f load/verify_invariants.sql` would look for that path inside the db

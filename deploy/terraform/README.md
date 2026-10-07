@@ -1,6 +1,6 @@
-# Vault: Terraform Deployment
+# Agora: Terraform Deployment
 
-Single EC2 instance running the full Vault stack via Docker Compose.
+Single EC2 instance running the full Agora stack via Docker Compose.
 
 ## Prerequisites
 

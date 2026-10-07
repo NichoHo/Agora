@@ -66,7 +66,7 @@ export default async function OrdersPage({
               className="flex items-center gap-3 rounded-card border border-line bg-surface p-3 transition-colors hover:border-line-strong"
             >
               <img
-                src={o.listing_image || "https://picsum.photos/seed/vault/160/120"}
+                src={o.listing_image || "https://picsum.photos/seed/agora/160/120"}
                 alt=""
                 className="h-14 w-18 rounded-control object-cover"
               />

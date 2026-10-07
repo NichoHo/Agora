@@ -94,7 +94,7 @@ var errCardAuthIndeterminate = errors.New("card authorization still unresolved")
 // authorizeCard runs before FundEscrow's ledger transfer, gating it on a
 // successful card charge when switch is configured. FundEscrow itself is
 // untouched: this is the only new step in the fund path (Section 6 of
-// AGORA_SPEC.md: extend pay, don't rewrite its ledger).
+// SPEC.md: extend pay, don't rewrite its ledger).
 func (s *Server) authorizeCard(ctx context.Context, orderID string, amountMinor int64) error {
 	if s.sw == nil {
 		return nil

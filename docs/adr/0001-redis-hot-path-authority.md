@@ -33,7 +33,7 @@ key. Splitting it N ways spreads that contention, at a cost: a shard can go
 empty before the drop is actually sold out, so the script has to walk the
 other shards. More shards lower contention per shard but raise the walk cost
 on the sold-out tail. This repo defaults to `shard_count = 8`; tune it per
-drop from the load numbers in Section 11 of `AGORA_SPEC.md`, once they
+drop from the load numbers in Section 11 of `SPEC.md`, once they
 exist.
 
 ## What this costs

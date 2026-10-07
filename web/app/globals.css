@@ -3,7 +3,7 @@
 @import "shadcn/tailwind.css";
 
 /* ============================================================================
-   Vault design system: "Nova" (v4). Supersedes "Slate Enterprise (v3)".
+   Agora design system: "Nova" (v4). Supersedes "Slate Enterprise (v3)".
    Light-only, white canvas + vivid orange brand. Depth comes from a neutral
    surface scale + soft layered elevation + glass on sticky chrome, not heavy
    shadows. Legacy Ishidatami token names are aliased at the bottom so the
@@ -11,30 +11,30 @@
    ============================================================================ */
 
 @theme {
-  /* ---- Vault surface scale ------------------------------------------------ */
+  /* ---- Agora surface scale ------------------------------------------------ */
   --color-canvas: #ffffff;
   --color-surface: #ffffff;
   --color-surface-2: #f7f7f5; /* soft warm-gray section backgrounds */
   --color-surface-3: #efeeea; /* hover / raised rows */
 
-  /* ---- Vault ink & text ramp ----------------------------------------------- */
+  /* ---- Agora ink & text ramp ----------------------------------------------- */
   --color-ink: #171412; /* near-black, warm */
   --color-ink-2: #46423d;
   --color-muted-foreground: #78736c; /* was --color-muted; renamed so shadcn's own `muted` (a background) doesn't collide */
   --color-faint: #a8a29a;
 
-  /* ---- Vault lines & fills -------------------------------------------------- */
+  /* ---- Agora lines & fills -------------------------------------------------- */
   --color-line: #e8e6e1;
   --color-line-strong: #d6d2ca;
   --color-fill: #f4f3ef;
 
-  /* ---- Vault brand: vivid orange (shadcn's "primary" slot) ------------------ */
+  /* ---- Agora brand: vivid orange (shadcn's "primary" slot) ------------------ */
   --color-primary: #fe5922; /* was --color-accent */
   --color-primary-strong: #d8430f; /* hover / pressed; was --color-accent-strong */
   --color-primary-tint: #fef3ec; /* was --color-accent-tint */
   --color-on-solid: #ffffff;
 
-  /* ---- Vault semantics ------------------------------------------------------ */
+  /* ---- Agora semantics ------------------------------------------------------ */
   --color-success: #16a34a;
   --color-success-tint: #effbf3;
   --color-warning: #ca8a04; /* shifted gold rather than amber so it reads distinct from the orange brand */
@@ -67,7 +67,7 @@
   --shadow-elevated: var(--shadow-lg);
 
   /* ---- shadcn/ui reserved tokens: read only by components/ui/* source files.
-     Aliased onto the Vault tokens above so Button/Input/etc. inherit this
+     Aliased onto the Agora tokens above so Button/Input/etc. inherit this
      palette automatically. `accent`/`accent-foreground`/`muted` are shadcn's
      own neutral hover-surface concept, NOT the brand color -- deliberately
      NOT aliased to `primary`, so a hovered dropdown/select item reads as a

@@ -31,7 +31,7 @@ type env struct {
 func (e *env) token(t *testing.T, sub string) string {
 	t.Helper()
 	now := time.Now()
-	tok, err := e.signer.Sign(id.Claims{Iss: testIssuer, Sub: sub, Aud: "vault",
+	tok, err := e.signer.Sign(id.Claims{Iss: testIssuer, Sub: sub, Aud: "agora",
 		Exp: now.Add(time.Hour).Unix(), Iat: now.Unix()})
 	if err != nil {
 		t.Fatal(err)

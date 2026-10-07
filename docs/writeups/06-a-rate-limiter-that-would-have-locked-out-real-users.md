@@ -1,6 +1,6 @@
 # A rate limiter that would have locked out real users
 
-This pass hardened the parts of [Vault](../../README.md) that face an
+This pass hardened the parts of [Agora](../../README.md) that face an
 anonymous attacker directly: per-IP rate limits on `id`'s login and MFA
 routes, self-service account deactivation, TOTP secrets encrypted at rest
 instead of stored in plaintext, a CSP on the Next.js app, closed ports on

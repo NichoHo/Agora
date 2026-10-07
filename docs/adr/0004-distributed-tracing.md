@@ -4,7 +4,7 @@ Status: accepted. Scope: every service, plus switch's deployment config.
 
 ## Context
 
-`AGORA_SPEC.md` section 9.2 wants one trace ID following a single request
+`SPEC.md` section 9.2 wants one trace ID following a single request
 through `id`, `sale`, `market`, `pay`, `switch` (a separate Java process in
 a separate repository), the transactional outbox, Redpanda, and `risk`.
 OpenTelemetry's standard propagation (W3C Trace Context, a `traceparent`

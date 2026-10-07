@@ -24,7 +24,7 @@ async def lifespan(app: FastAPI):
     db.pool.close()
 
 
-app = FastAPI(title="vault-assist", lifespan=lifespan)
+app = FastAPI(title="agora-assist", lifespan=lifespan)
 FastAPIInstrumentor.instrument_app(app)
 
 

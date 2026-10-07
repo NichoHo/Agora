@@ -1,9 +1,9 @@
 openapi: 3.1.0
 info:
-  title: Vault API
+  title: Agora API
   version: "1.0.0"
   description: >
-    REST surface of Vault's services: id (OIDC provider), market (listings +
+    REST surface of Agora's services: id (OIDC provider), market (listings +
     orders), pay (escrow ledger + wallet), and assist (AI suggestions + trust).
     In the running stack the browser reaches id through a same-origin `/idp/*`
     proxy; the other services are called server-side by the Next.js app. Money is
@@ -122,7 +122,7 @@ paths:
                 password: { type: string, minLength: 8 }
                 handle: { type: string, pattern: "^[a-z0-9_]{3,30}$" }
       responses:
-        "201": { description: Created; sets vault_sid cookie }
+        "201": { description: Created; sets agora_sid cookie }
         "409": { description: Email or handle taken, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
   /login:
     post:

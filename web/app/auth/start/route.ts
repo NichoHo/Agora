@@ -25,7 +25,7 @@ export async function GET(req: Request) {
 
   const q = new URLSearchParams({
     response_type: "code",
-    client_id: "vault-web",
+    client_id: "agora-web",
     redirect_uri: `${WEB_ORIGIN}/auth/callback`,
     scope: "openid profile",
     state,

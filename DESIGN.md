@@ -1,4 +1,4 @@
-# Nova (v4): Vault's Marketplace Design System
+# Nova (v4): Agora's Marketplace Design System
 
 Nova replaces "Slate Enterprise (v3)" (indigo, light and dark mode). It ships a
 white canvas and one orange brand color, and it drops dark mode entirely. See

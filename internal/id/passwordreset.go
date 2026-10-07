@@ -14,10 +14,10 @@ const passwordResetTTL = time.Hour
 
 // handleForgotPassword always responds 204, whether or not the email
 // matches an account: an OIDC/auth error response must never leak whether a
-// username exists (AGORA_SPEC.md section 12). On a match it mints a
+// username exists (SPEC.md section 12). On a match it mints a
 // single-use token, stores its hash (same shape as recovery codes), and
 // "sends" the reset link the only way this project sends any email —
-// logged, per "vault spec.md" section 2's "console-log email" decision,
+// logged, per "SPEC.md" section 2's "console-log email" decision,
 // not a real mailer.
 func (s *Server) handleForgotPassword(w http.ResponseWriter, r *http.Request) {
 	var in struct{ Email string }

@@ -9,7 +9,7 @@ import (
 	"agora/migrations"
 )
 
-// TestDeactivatedAccountRejectedImmediately proves AGORA_SPEC.md section 12's
+// TestDeactivatedAccountRejectedImmediately proves SPEC.md section 12's
 // "account deactivation takes effect on the next request, not the next token
 // refresh" across a service boundary: market never talks to id's database
 // directly except through authn.Verifier's cross-schema is_active check.

@@ -14,7 +14,7 @@ package market
 //
 // ponytail: the object key (a random UUID market itself generated) is the
 // only thing gating a GET — there's no per-request signature or expiry, a
-// simplification from AGORA_SPEC.md's "served through signed URLs" language.
+// simplification from SPEC.md's "served through signed URLs" language.
 // A listing photo is public marketplace content the instant the listing
 // goes live, the same trust level pasted image_url has always had; what
 // actually matters is that MinIO's bucket and credentials are never reached

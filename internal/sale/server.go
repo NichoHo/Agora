@@ -34,7 +34,7 @@ func NewServer(pool *pgxpool.Pool, auth *authn.Verifier, rdb *Redis, market *Mar
 	mux.HandleFunc("GET /drops/{id}", s.handleGetDrop)
 	mux.HandleFunc("POST /drops/{id}/queue/join", s.auth.Require(s.handleJoinQueue))
 	mux.HandleFunc("GET /drops/{id}/queue/stream", s.auth.Require(s.handleQueueStream))
-	// AGORA_SPEC.md section 12: the queue/admission system already bounds
+	// SPEC.md section 12: the queue/admission system already bounds
 	// aggregate drop concurrency; these are the backstop per-IP and per-user
 	// limits against one client hammering retries, not a substitute for it.
 	reserveByIP := ratelimit.New(2, 10)

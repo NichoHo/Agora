@@ -104,7 +104,7 @@ def login_score(recent_login_count: int) -> tuple[float, list[str]]:
     proxy for credential stuffing / account-takeover attempts.
 
     ponytail: velocity only. Geo velocity and unrecognised-device signals
-    from AGORA_SPEC.md section 8.3 need IP geolocation and a device
+    from SPEC.md section 8.3 need IP geolocation and a device
     fingerprint id doesn't collect anywhere today; adding that is a change
     to id's login flow itself, out of scope for wiring its events, which is
     what this pass does. Add if account-takeover shows up as a real problem.

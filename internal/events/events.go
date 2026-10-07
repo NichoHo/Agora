@@ -1,4 +1,4 @@
-// Package events wires the outboxkit relay for Vault's services. Each service's
+// Package events wires the outboxkit relay for Agora's services. Each service's
 // <schema>.outbox is drained to a Redpanda stream topic named "<schema>.events".
 package events
 

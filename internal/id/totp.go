@@ -72,6 +72,6 @@ func VerifyTOTP(secret, code string, now time.Time) (int64, bool) {
 
 // OtpauthURI renders the standard enrollment URI authenticator apps consume.
 func OtpauthURI(email, secret string) string {
-	return fmt.Sprintf("otpauth://totp/Vault:%s?secret=%s&issuer=Vault&algorithm=SHA1&digits=%d&period=%d",
+	return fmt.Sprintf("otpauth://totp/Agora:%s?secret=%s&issuer=Agora&algorithm=SHA1&digits=%d&period=%d",
 		url.PathEscape(email), secret, totpDigits, int(totpStep.Seconds()))
 }

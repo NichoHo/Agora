@@ -1,7 +1,7 @@
 # ponytail: single instance, no ASG/ALB/RDS. Swap in ECS+RDS if the demo needs HA.
 
 # ---------------------------------------------------------------------------
-# Vault: EC2 instance
+# Agora: EC2 instance
 # ---------------------------------------------------------------------------
 
 # ── Latest Amazon Linux 2023 AMI ─────────────────────────────────────────────
@@ -28,11 +28,11 @@ data "aws_ami" "al2023" {
 
 # ── EC2 Instance ─────────────────────────────────────────────────────────────
 
-resource "aws_instance" "vault" {
+resource "aws_instance" "agora" {
   ami                    = data.aws_ami.al2023.id
   instance_type          = var.instance_type
   key_name               = var.key_name
-  vpc_security_group_ids = [aws_security_group.vault.id]
+  vpc_security_group_ids = [aws_security_group.agora.id]
   subnet_id              = data.aws_subnets.default.ids[0]
 
   associate_public_ip_address = true
@@ -61,9 +61,9 @@ resource "aws_instance" "vault" {
 
     # ── Clone repo & start services ──────────────────────────────────────
     cd /home/ec2-user
-    git clone ${var.repo_url} vault
-    chown -R ec2-user:ec2-user vault
-    cd vault
+    git clone ${var.repo_url} agora
+    chown -R ec2-user:ec2-user agora
+    cd agora
 
     # WEB_URL/WEB_ORIGIN are sent to the browser for redirects and origin
     # checks, so they must resolve to this instance's public IP, not
@@ -77,7 +77,7 @@ resource "aws_instance" "vault" {
   EOF
 
   tags = {
-    Name    = "vault-server"
-    Project = "vault"
+    Name    = "agora-server"
+    Project = "agora"
   }
 }

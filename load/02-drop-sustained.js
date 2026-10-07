@@ -1,4 +1,4 @@
-// Scenario 2 (AGORA_SPEC.md section 11): drop sustained.
+// Scenario 2 (SPEC.md section 11): drop sustained.
 // Target: p99 < 300ms, error rate < 0.1%.
 //
 // Once the drop's stock is gone, further attempts get a clean 409 sold_out,

@@ -15,7 +15,7 @@ doesn't exist. This is the **dual-write problem**, and you cannot fix it by reor
 the two lines or wrapping them in a retry. There is no ordering of two
 independent commits that is crash-safe.
 
-Building [Vault](https://github.com/NichoHo/Agora), a marketplace where the
+Building [Agora](https://github.com/NichoHo/Agora), a marketplace where the
 trust-scoring service reacts to every listing and order, I hit this and solved it
 with the transactional outbox, then extracted the reusable core into a small Go
 library, [outboxkit](https://github.com/NichoHo/outboxkit). This is how it works
@@ -27,7 +27,7 @@ The insight: you already have one system that can make writes atomic, and that
 is your database. So make the event a *database row*, written in the **same transaction**
 as the state change. Either both commit or neither does.
 
-In Vault's market service, creating a listing and recording its event are one
+In Agora's market service, creating a listing and recording its event are one
 transaction:
 
 ```go
@@ -62,7 +62,7 @@ Nothing has been published yet. That's the relay's job.
 ## The relay: at-least-once by construction
 
 A separate process (or goroutine) drains unpublished rows to the real message
-bus, which is Redpanda in Vault's case. This is outboxkit's `Relay`, and the
+bus, which is Redpanda in Agora's case. This is outboxkit's `Relay`, and the
 entire correctness argument lives in one method:
 
 ```go
@@ -175,11 +175,11 @@ The relay and the guard are maybe 150 lines. But they're 150 lines that are easy
 to get subtly wrong: hold the transaction the wrong way and you lose events,
 forget `ON CONFLICT` and you double-charge. Pulling them into a versioned module
 with a chaos test means the correctness argument lives in one place, tested once,
-reused by both of Vault's event-producing services. The core has **no
+reused by both of Agora's event-producing services. The core has **no
 message-broker dependency**. It talks to a `Publisher` interface, so it's
 testable with a fake and you bring your own sink (a `kafkapub` subpackage wraps
 Redpanda). Outbox/idempotency is genuinely underserved in Go, and it's exactly the
 kind of small, correctness-shaped thing that's worth doing once and well.
 
 *outboxkit: [github.com/NichoHo/outboxkit](https://github.com/NichoHo/outboxkit).
-Used in Vault by the market and pay services.*
+Used in Agora by the market and pay services.*

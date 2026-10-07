@@ -41,7 +41,7 @@ export default async function ListingPage({
         className="overflow-hidden rounded-panel border border-line bg-fill md:sticky md:top-20 md:self-start"
       >
         <img
-          src={listing.image_url || "https://picsum.photos/seed/vault/800/600"}
+          src={listing.image_url || "https://picsum.photos/seed/agora/800/600"}
           alt={listing.title}
           className="aspect-[4/3] w-full object-cover"
         />

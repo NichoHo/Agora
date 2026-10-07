@@ -4,10 +4,11 @@ Status: accepted. Scope: the `sale` <-> `market` boundary.
 
 ## Context
 
-`AGORA_SPEC.md` names two constraints that pull against each other:
+`SPEC.md` names two constraints that pull against each other:
 
 1. `market`'s order flow is not to change (Section 6: "do not rewrite id,
-   market, pay, or assist... move them, do not touch them").
+   market, pay, or assist"; new capability integrates through their existing
+   APIs).
 2. A drop hands a successful reservation to `market` as a real order
    (Section 7.4: "sale calls market to create an order in pending_payment").
 

@@ -1,4 +1,4 @@
-"""Redpanda consumer: risk's actual event inputs (see AGORA_SPEC.md section
+"""Redpanda consumer: risk's actual event inputs (see SPEC.md section
 8.3). All five rows of that section's table are wired here:
 
 | Topic (stream)  | domain-topic header       | Signal                            |

@@ -43,7 +43,7 @@ var items = []item{ // price is US cents
 
 func main() {
 	ctx := context.Background()
-	pool, err := pg.Connect(ctx, env("DATABASE_URL", "postgres://vault:vault@localhost:5432/vault"))
+	pool, err := pg.Connect(ctx, env("DATABASE_URL", "postgres://agora:agora@localhost:5432/agora"))
 	if err != nil {
 		slog.Error("connect", "err", err)
 		os.Exit(1)
@@ -65,14 +65,14 @@ func main() {
 	}
 
 	_, err = pool.Exec(ctx,
-		`INSERT INTO id.oauth_clients (id, name, redirect_uris) VALUES ('vault-web', 'Vault Storefront', $1)
+		`INSERT INTO id.oauth_clients (id, name, redirect_uris) VALUES ('agora-web', 'Agora Storefront', $1)
 		 ON CONFLICT (id) DO UPDATE SET redirect_uris = $1`,
 		[]string{env("WEB_CALLBACK", "http://localhost:3001/auth/callback")})
 	must(err)
 
 	userIDs := map[string]string{}
 	for _, u := range []struct{ email, handle string }{
-		{"alice@vault.test", "alice"}, {"bob@vault.test", "bob"},
+		{"alice@agora.test", "alice"}, {"bob@agora.test", "bob"},
 	} {
 		hash, err := id.HashPassword("password123!")
 		must(err)

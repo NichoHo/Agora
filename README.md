@@ -68,7 +68,7 @@ make up                          # docker compose up --build -d, runs the world
 docker compose run --rm seed     # demo users, categories, listings
 ```
 
-Open http://localhost:3001, register (or use `alice@vault.test` / `password123!`), approve the consent screen, and sell something. The sign-in you just did was a full OAuth 2.0 Authorization Code + PKCE round trip against the project's own identity provider.
+Open http://localhost:3001, register (or use `alice@agora.test` / `password123!`), approve the consent screen, and sell something. The sign-in you just did was a full OAuth 2.0 Authorization Code + PKCE round trip against the project's own identity provider.
 
 Card authorization runs in wallet-only mode (`pay` skips `authorizeCard` entirely) unless `SWITCH_URL` is set. To see a real card charge round-trip through the separate Java service, clone [switch](https://github.com/NichoHo/Switch) next to this repo (as `../Switch`) and run both in one stack:
 
@@ -111,7 +111,7 @@ make fmt    # gofmt
 make vet    # go vet
 
 # DB-backed tests (id + market + pay + sale integration suites):
-TEST_DATABASE_URL=postgres://vault:vault@localhost:5432/vault go test -race -p 1 ./...
+TEST_DATABASE_URL=postgres://agora:agora@localhost:5432/agora go test -race -p 1 ./...
 
 # assist / risk tests:
 cd assist && pytest tests/
@@ -162,7 +162,7 @@ End-to-end (Playwright):
 
 ## Trying the features
 
-- **Escrow demo:** sign in as `bob@vault.test` (`password123!`), buy one of alice's listings, pay from the seeded wallet, then sign in as `alice@vault.test`, ship it, switch back to bob and confirm receipt. Watch both `/wallet` pages: bob −price, alice +90%, platform +10%, escrow zero.
+- **Escrow demo:** sign in as `bob@agora.test` (`password123!`), buy one of alice's listings, pay from the seeded wallet, then sign in as `alice@agora.test`, ship it, switch back to bob and confirm receipt. Watch both `/wallet` pages: bob −price, alice +90%, platform +10%, escrow zero.
 - **AI sell:** `/sell` → type a title → Suggest. With `ANTHROPIC_API_KEY` exported before `docker compose up`, suggestions come from Claude vision; without it, a heuristic + comparable-price band keeps the flow alive.
 - **MFA:** `2FA` in the header → enroll with any TOTP app → sign out → sign in again for the step-up prompt. Recovery codes are single-use.
 - **Admin:** sign in as alice → `Admin` for suggestion acceptance rates, the trust review queue, and the risk console (`/admin/risk`).

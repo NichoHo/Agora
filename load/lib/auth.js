@@ -5,7 +5,7 @@ import { check } from 'k6';
 
 const ID_URL = __ENV.ID_URL || 'http://localhost:8081';
 const WEB_ORIGIN = __ENV.WEB_ORIGIN || 'http://localhost:3001';
-const CLIENT_ID = 'vault-web'; // seeded in cmd/seed/main.go
+const CLIENT_ID = 'agora-web'; // seeded in cmd/seed/main.go
 const REDIRECT_URI = `${WEB_ORIGIN}/auth/callback`;
 
 function randString(n) {
@@ -22,7 +22,7 @@ function randString(n) {
 // This is the same sequence the storefront's login form and consent screen
 // drive; k6 is a real OAuth client here, not bypassing id's logic.
 export function registerAndAuthorize() {
-  const email = `loadtest-${randString(10)}@vault.test`;
+  const email = `loadtest-${randString(10)}@agora.test`;
   const password = 'LoadTest123!';
   const handle = `lt_${randString(10)}`;
 

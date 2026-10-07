@@ -7,7 +7,7 @@ export const WEB_ORIGIN = process.env.WEB_ORIGIN ?? "http://localhost:3001";
 // mirrors internal/id/server.go's Secure: strings.HasPrefix(s.webURL, "https://") —
 // on unconditionally in prod, off for http://localhost dev so cookies still get sent.
 export const SECURE_COOKIES = WEB_ORIGIN.startsWith("https://");
-export const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "alice@vault.test")
+export const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "alice@agora.test")
   .split(",")
   .map((e) => e.trim().toLowerCase())
   .filter(Boolean);

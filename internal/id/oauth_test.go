@@ -23,7 +23,7 @@ import (
 
 const (
 	testIssuer   = "http://issuer.test"
-	testClient   = "vault-web"
+	testClient   = "agora-web"
 	testRedirect = "http://web.test/auth/callback"
 )
 
@@ -49,7 +49,7 @@ func testEnv(t *testing.T) (*httptest.Server, *http.Client, *pgxpool.Pool) {
 		t.Fatal(err)
 	}
 	if _, err := pool.Exec(ctx,
-		`INSERT INTO id.oauth_clients (id, name, redirect_uris) VALUES ($1, 'Vault Web', $2)`,
+		`INSERT INTO id.oauth_clients (id, name, redirect_uris) VALUES ($1, 'Agora Web', $2)`,
 		testClient, []string{testRedirect}); err != nil {
 		t.Fatal(err)
 	}
@@ -192,7 +192,7 @@ func TestOIDCRoundTripAndMisuse(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	claims, err := VerifyJWT(tok.AccessToken, keys, testIssuer, "vault", time.Now())
+	claims, err := VerifyJWT(tok.AccessToken, keys, testIssuer, "agora", time.Now())
 	if err != nil {
 		t.Fatalf("verify access token: %v", err)
 	}

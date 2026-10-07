@@ -9,7 +9,7 @@ export default async function RegisterPage({
 }) {
   const sp = await searchParams;
   return (
-    <IdCard title="Create your Vault ID">
+    <IdCard title="Create your Agora ID">
       <RegisterForm returnTo={safePath(sp.return_to)} />
     </IdCard>
   );

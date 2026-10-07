@@ -4,7 +4,7 @@ export type User = { sub: string; email: string };
 
 export async function getToken(): Promise<string | null> {
   const c = await cookies();
-  return c.get("vault_token")?.value ?? null;
+  return c.get("agora_token")?.value ?? null;
 }
 
 // Decodes the access token payload for UI purposes only, with no signature check

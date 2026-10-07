@@ -12,7 +12,7 @@ import "./globals.css";
 const plusJakarta = Plus_Jakarta_Sans({ variable: "--font-plus-jakarta", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Vault",
+  title: "Agora",
   description: "C2C marketplace with self-built identity and escrow",
 };
 
@@ -23,7 +23,7 @@ async function Header() {
     <header className="border-b border-line glass">
       <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3 sm:px-6 lg:px-8">
         <Link href="/" className="shrink-0 text-lg font-bold tracking-tight text-ink">
-          Vault<span className="text-primary">.</span>
+          Agora<span className="text-primary">.</span>
         </Link>
         <form action="/search" role="search" className="flex-1">
           <Input

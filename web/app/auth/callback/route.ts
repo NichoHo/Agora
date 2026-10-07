@@ -29,7 +29,7 @@ export async function GET(req: Request) {
       grant_type: "authorization_code",
       code,
       redirect_uri: `${WEB_ORIGIN}/auth/callback`,
-      client_id: "vault-web",
+      client_id: "agora-web",
       code_verifier: verifier,
     }),
     cache: "no-store",
@@ -42,7 +42,7 @@ export async function GET(req: Request) {
     refresh_token?: string;
     expires_in: number;
   };
-  c.set("vault_token", tok.access_token, {
+  c.set("agora_token", tok.access_token, {
     httpOnly: true,
     sameSite: "lax",
     secure: SECURE_COOKIES,
@@ -50,7 +50,7 @@ export async function GET(req: Request) {
     maxAge: tok.expires_in,
   });
   if (tok.refresh_token) {
-    c.set("vault_refresh", tok.refresh_token, {
+    c.set("agora_refresh", tok.refresh_token, {
       httpOnly: true,
       sameSite: "lax",
       secure: SECURE_COOKIES,

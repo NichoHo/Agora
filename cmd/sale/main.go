@@ -36,7 +36,7 @@ func main() {
 	}
 	defer shutdown(ctx)
 
-	pool, err := pg.Connect(ctx, env("DATABASE_URL", "postgres://vault:vault@localhost:5432/vault"))
+	pool, err := pg.Connect(ctx, env("DATABASE_URL", "postgres://agora:agora@localhost:5432/agora"))
 	if err != nil {
 		slog.Error("connect", "err", err)
 		os.Exit(1)

@@ -12,7 +12,7 @@ import (
 )
 
 // maxConns caps each service's pool so a traffic spike (sale's reserve
-// endpoint under load, see AGORA_SPEC.md section 11) degrades into queued
+// endpoint under load, see SPEC.md section 11) degrades into queued
 // requests instead of exhausting Postgres's own connection limit and taking
 // every service down with it.
 const maxConns = 20

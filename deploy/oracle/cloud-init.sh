@@ -1,5 +1,5 @@
 #!/bin/bash
-# Vault: Oracle Cloud "Always Free" bootstrap script.
+# Agora: Oracle Cloud "Always Free" bootstrap script.
 # Paste this into the instance's "Cloud-init script" box during creation
 # (Advanced options -> Management -> Paste cloud-init script). Runs once, as root, on first boot.
 set -euo pipefail

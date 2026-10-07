@@ -10,7 +10,7 @@ export default function ListingCard({ listing }: { listing: Listing }) {
       <div className="aspect-[4/3] overflow-hidden bg-fill">
         {/* plain <img>: no image optimizer in the container; picsum seeds the demo */}
         <img
-          src={listing.image_url || "https://picsum.photos/seed/vault/800/600"}
+          src={listing.image_url || "https://picsum.photos/seed/agora/800/600"}
           alt={listing.title}
           width={800}
           height={600}

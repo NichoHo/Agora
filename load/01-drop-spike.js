@@ -1,4 +1,4 @@
-// Scenario 1 (AGORA_SPEC.md section 11): drop spike.
+// Scenario 1 (SPEC.md section 11): drop spike.
 // Target: zero oversell. p99 reserve latency < 200ms. No 5xx.
 //
 // Scope note: the spec's target names "p99 admission", the queue/SSE stage

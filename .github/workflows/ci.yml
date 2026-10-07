@@ -12,12 +12,12 @@ jobs:
       postgres:
         image: postgres:17-alpine
         env:
-          POSTGRES_USER: vault
-          POSTGRES_PASSWORD: vault
-          POSTGRES_DB: vault
+          POSTGRES_USER: agora
+          POSTGRES_PASSWORD: agora
+          POSTGRES_DB: agora
         ports: ["5432:5432"]
         options: >-
-          --health-cmd "pg_isready -U vault"
+          --health-cmd "pg_isready -U agora"
           --health-interval 2s
           --health-timeout 2s
           --health-retries 15
@@ -31,8 +31,8 @@ jobs:
       # -p 1: test packages share one database and recreate their schemas
       - run: go test -race -p 1 ./...
         env:
-          TEST_DATABASE_URL: postgres://vault:vault@localhost:5432/vault
-      # AGORA_SPEC.md section 12: govulncheck on every push/PR, not just before deploy.
+          TEST_DATABASE_URL: postgres://agora:agora@localhost:5432/agora
+      # SPEC.md section 12: govulncheck on every push/PR, not just before deploy.
       - run: go run golang.org/x/vuln/cmd/govulncheck@latest ./...
 
   web:

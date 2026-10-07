@@ -1,6 +1,6 @@
 # Engineering write-ups
 
-Six posts on the parts of [Vault](../../README.md) that were worth building
+Six posts on the parts of [Agora](../../README.md) that were worth building
 from scratch. Each is concrete, with code pulled from the repo.
 
 1. **[Building an OIDC provider from the RFCs (and what I got wrong first)](01-oidc-from-the-rfcs.md)**

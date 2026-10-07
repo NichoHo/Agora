@@ -20,7 +20,7 @@ func testSigner(t *testing.T) *Signer {
 }
 
 func claims(exp time.Time) Claims {
-	return Claims{Iss: "http://issuer.test", Sub: "user-1", Aud: "vault",
+	return Claims{Iss: "http://issuer.test", Sub: "user-1", Aud: "agora",
 		Exp: exp.Unix(), Iat: time.Now().Unix(), Email: "a@b.c"}
 }
 
@@ -33,7 +33,7 @@ func TestJWTRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	got, err := VerifyJWT(tok, keys, "http://issuer.test", "vault", now)
+	got, err := VerifyJWT(tok, keys, "http://issuer.test", "agora", now)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -44,15 +44,15 @@ func TestJWTRoundTrip(t *testing.T) {
 	// tampered payload
 	parts := strings.Split(tok, ".")
 	evil, _ := json.Marshal(map[string]any{"iss": "http://issuer.test", "sub": "user-666",
-		"aud": "vault", "exp": now.Add(time.Hour).Unix()})
+		"aud": "agora", "exp": now.Add(time.Hour).Unix()})
 	tampered := parts[0] + "." + base64.RawURLEncoding.EncodeToString(evil) + "." + parts[2]
-	if _, err := VerifyJWT(tampered, keys, "http://issuer.test", "vault", now); err == nil {
+	if _, err := VerifyJWT(tampered, keys, "http://issuer.test", "agora", now); err == nil {
 		t.Fatal("tampered token verified")
 	}
 
 	// expired
 	tok, _ = s.Sign(claims(now.Add(-time.Minute)))
-	if _, err := VerifyJWT(tok, keys, "http://issuer.test", "vault", now); err == nil {
+	if _, err := VerifyJWT(tok, keys, "http://issuer.test", "agora", now); err == nil {
 		t.Fatal("expired token verified")
 	}
 
@@ -63,7 +63,7 @@ func TestJWTRoundTrip(t *testing.T) {
 	}
 
 	// unknown kid
-	if _, err := VerifyJWT(tok, map[string]*rsa.PublicKey{}, "http://issuer.test", "vault", now); err == nil {
+	if _, err := VerifyJWT(tok, map[string]*rsa.PublicKey{}, "http://issuer.test", "agora", now); err == nil {
 		t.Fatal("unknown-kid token verified")
 	}
 }
@@ -75,7 +75,7 @@ func TestAlgNoneRejected(t *testing.T) {
 	payload, _ := json.Marshal(claims(time.Now().Add(time.Hour)))
 	tok := base64.RawURLEncoding.EncodeToString(header) + "." +
 		base64.RawURLEncoding.EncodeToString(payload) + "."
-	if _, err := VerifyJWT(tok, keys, "http://issuer.test", "vault", time.Now()); err == nil {
+	if _, err := VerifyJWT(tok, keys, "http://issuer.test", "agora", time.Now()); err == nil {
 		t.Fatal("alg=none accepted")
 	}
 }
@@ -91,7 +91,7 @@ func TestJWKSRoundTrip(t *testing.T) {
 		t.Fatal(err)
 	}
 	tok, _ := s.Sign(claims(time.Now().Add(time.Hour)))
-	if _, err := VerifyJWT(tok, keys, "http://issuer.test", "vault", time.Now()); err != nil {
+	if _, err := VerifyJWT(tok, keys, "http://issuer.test", "agora", time.Now()); err != nil {
 		t.Fatalf("verify with parsed JWKS: %v", err)
 	}
 }

@@ -1,9 +1,9 @@
 # Load testing Agora: three real bugs and one honest miss
 
-`AGORA_SPEC.md` section 11 asks for five k6 scenarios against the real
+`SPEC.md` section 11 asks for five k6 scenarios against the real
 stack, real targets, and a rule I like: if a target is missed, publish the
 miss and the reason, don't quietly drop the scenario. This is that
-publication, run on the same laptop that's been running [Vault](../../README.md)
+publication, run on the same laptop that's been running [Agora](../../README.md)
 and [Switch](https://github.com/NichoHo/Switch) all session, not a cloud
 instance.
 

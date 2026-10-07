@@ -177,7 +177,7 @@ func (s *Server) handleToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	now := time.Now()
-	access, err := s.signer.Sign(Claims{Iss: s.issuer, Sub: userID, Aud: "vault",
+	access, err := s.signer.Sign(Claims{Iss: s.issuer, Sub: userID, Aud: "agora",
 		Exp: now.Add(tokenTTL).Unix(), Iat: now.Unix(), Email: email})
 	if err != nil {
 		httpx.Error(w, 500, "sign")
@@ -292,7 +292,7 @@ func (s *Server) handleRefreshGrant(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	now := time.Now()
-	access, err := s.signer.Sign(Claims{Iss: s.issuer, Sub: userID, Aud: "vault",
+	access, err := s.signer.Sign(Claims{Iss: s.issuer, Sub: userID, Aud: "agora",
 		Exp: now.Add(tokenTTL).Unix(), Iat: now.Unix(), Email: email})
 	if err != nil {
 		httpx.Error(w, 500, "sign")

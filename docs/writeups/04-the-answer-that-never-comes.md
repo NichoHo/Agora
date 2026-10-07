@@ -101,7 +101,7 @@ generous guess with a name, not a measured constant.
 
 ## The boundary this respects
 
-`market`'s order flow was not allowed to change (`AGORA_SPEC.md` section
+`market`'s order flow was not allowed to change (`SPEC.md` section
 6). Its `PayClient.Fund` understands exactly three outcomes: 200 success,
 402 insufficient funds, 409 already settled. Anything else falls into a
 generic error branch that leaves the order in `pending_payment` and returns

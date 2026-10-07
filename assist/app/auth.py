@@ -12,7 +12,7 @@ ID_JWKS_URL = os.environ.get("ID_JWKS_URL", "http://localhost:8081/.well-known/j
 ID_ISSUER = os.environ.get("ID_ISSUER", "http://localhost:8081")
 ADMIN_EMAILS = {
     e.strip().lower()
-    for e in os.environ.get("ADMIN_EMAILS", "alice@vault.test").split(",")
+    for e in os.environ.get("ADMIN_EMAILS", "alice@agora.test").split(",")
     if e.strip()
 }
 
@@ -43,7 +43,7 @@ def current_user(request: Request) -> dict:
     try:
         key = _jwk_client.get_signing_key_from_jwt(token)
         claims = jwt.decode(
-            token, key.key, algorithms=["RS256"], audience="vault", issuer=ID_ISSUER
+            token, key.key, algorithms=["RS256"], audience="agora", issuer=ID_ISSUER
         )
     except Exception:
         raise HTTPException(401, "invalid token")

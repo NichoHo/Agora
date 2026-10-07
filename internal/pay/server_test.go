@@ -47,7 +47,7 @@ func testHTTP(t *testing.T, sw *SwitchClient) *httpEnv {
 func (e *httpEnv) token(t *testing.T, sub string) string {
 	t.Helper()
 	now := time.Now()
-	tok, err := e.signer.Sign(id.Claims{Iss: "http://issuer.test", Sub: sub, Aud: "vault",
+	tok, err := e.signer.Sign(id.Claims{Iss: "http://issuer.test", Sub: sub, Aud: "agora",
 		Exp: now.Add(time.Hour).Unix(), Iat: now.Unix()})
 	if err != nil {
 		t.Fatal(err)

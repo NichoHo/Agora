@@ -1,5 +1,5 @@
 // Hand-rolled RS256 JWT + JWKS. Educational by design (see README): the point
-// of Vault's id service is building the OIDC provider from the RFCs.
+// of Agora's id service is building the OIDC provider from the RFCs.
 package id
 
 import (

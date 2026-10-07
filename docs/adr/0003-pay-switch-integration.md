@@ -4,14 +4,14 @@ Status: accepted. Scope: `pay`, and one migration in the separate `switch` repo.
 
 ## Context
 
-Phase 3 wires `pay` to `switch` for card authorization (`AGORA_SPEC.md`
+Phase 3 wires `pay` to `switch` for card authorization (`SPEC.md`
 section 9.1 and 7.4 step 3), and switch already models the hard case: an
 acquirer response that never arrives. Its payment can land in
 `AUTH_UNKNOWN`, neither approved nor declined.
 
 Two constraints shape the design:
 
-1. `market` and `sale` must not change (`AGORA_SPEC.md` section 6). Market's
+1. `market` and `sale` must not change (`SPEC.md` section 6). Market's
    `PayClient.Fund` already only understands three outcomes: 200 success,
    402 insufficient funds, 409 already settled. Anything else it treats as
    a generic failure and leaves the order in `pending_payment`, unharmed.
