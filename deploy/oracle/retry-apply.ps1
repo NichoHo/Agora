@@ -28,7 +28,8 @@ while ($true) {
     $state = "ACCEPTED"
     while ($state -eq "ACCEPTED" -or $state -eq "IN_PROGRESS") {
         Start-Sleep -Seconds 5
-        $state = oci resource-manager job get --job-id $jobId --query data.`"lifecycle-state`" --raw-output
+        # ConvertFrom-Json instead of --query: PowerShell 5.1 mangles the quoted "lifecycle-state" key
+        $state = (oci resource-manager job get --job-id $jobId | ConvertFrom-Json).data.'lifecycle-state'
     }
 
     if ($state -eq "SUCCEEDED") {

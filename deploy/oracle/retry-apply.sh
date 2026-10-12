@@ -9,7 +9,7 @@
 # icon -> My Profile -> API Keys -> Add API Key).
 set -uo pipefail  # no -e: a failed `oci` call (e.g. 429) must fall through to the check below, not kill the loop
 
-STACK_ID="ocid1.ormstack.oc1.ap-batam-1.amaaaaaaajpslfyareuun5vk2qmklbulzfetsw3vzlq3zjhwbmquecsox4ca"  # Console: Resource Manager -> Stacks -> vault-server-stack -> Copy OCID
+STACK_ID="ocid1.ormstack.oc1.ap-batam-1.amaaaaaaajpslfyareuun5vk2qmklbulzfetsw3vzlq3zjhwbmquecsox4ca"  # Console: Resource Manager -> Stacks -> agora-server-stack -> Copy OCID
 CAPACITY_RETRY=120      # wait between attempts after a normal capacity failure
 RATE_LIMIT_BACKOFF=300  # starting wait after a 429; doubles each consecutive 429
 MAX_BACKOFF=1800
